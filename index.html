@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PDF Uploader</title>
+</head>
+
+<body>
+    <input type="file" id="file-input">
+    <button id="upload-btn">Upload</button>
+    <div id="status"></div>
+    <div id="result"></div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080');
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        const status = document.getElementById('status');
+        const result = document.getElementById('result');
+
+        uploadBtn.addEventListener('click', () => {
+            // Check if a file has been selected
+            if (!fileInput.files[0]) {
+                status.innerHTML = 'Please select a file';
+                return;
+            }
+
+            // Read the file as a buffer
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const fileBuffer = e.target.result;
+
+                // Send the file buffer to the server
+                const message = {
+                    client: 'client1',
+                    sendBack: true
+                };
+                /*const message = JSON.stringify({
+                  client: 'client1',
+                  file: fileBuffer,
+                  sendBack: true
+                });*/
+                socket.send(message);
+
+                // Display a message to the user
+                status.innerHTML = 'Uploading file...';
+            };
+            reader.readAsArrayBuffer(fileInput.files[0]);
+        });
+
+        // Listen for messages from the server
+        socket.addEventListener('message', (event) => {
+            // Display the message received from the server
+            result.innerHTML = event.data.message;
+        });
+    </script>
+</body>
+
+</html>
