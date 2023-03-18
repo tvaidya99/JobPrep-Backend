@@ -29,17 +29,7 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 const fileBuffer = e.target.result;
-
-                // Send the file buffer to the server
-                const message = {
-                    client: 'client1',
-                    sendBack: true
-                };
-                /*const message = JSON.stringify({
-                  client: 'client1',
-                  file: fileBuffer,
-                  sendBack: true
-                });*/
+                const message = fileBuffer;
                 socket.send(message);
 
                 // Display a message to the user
@@ -51,7 +41,7 @@
         // Listen for messages from the server
         socket.addEventListener('message', (event) => {
             // Display the message received from the server
-            result.innerHTML = event.data.message;
+            result.innerHTML = event.data;
         });
     </script>
 </body>
