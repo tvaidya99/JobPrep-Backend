@@ -29,7 +29,10 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 const fileBuffer = e.target.result;
-                const message = fileBuffer;
+                const message = JSON.stringify({
+                    sendBack: true,
+                    resume: _arrayBufferToBase64(fileBuffer)
+                });
                 socket.send(message);
 
                 // Display a message to the user
@@ -43,6 +46,16 @@
             // Display the message received from the server
             result.innerHTML = event.data;
         });
+
+        function _arrayBufferToBase64(buffer) {
+            var binary = '';
+            var bytes = new Uint8Array(buffer);
+            var len = bytes.byteLength;
+            for (var i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
     </script>
 </body>
 

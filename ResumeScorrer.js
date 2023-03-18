@@ -9,16 +9,16 @@ wss.on('connection', (socket) => {
   console.log('Client connected');
 
   socket.on('message', async function (message) {
-    //const data = JSON.parse(message);
-    const file = message;
+    const data = JSON.parse(message);
 
     // Check if a file was sent
-    if (file) {
+    if (data) {
       console.log('Received file from client!');
 
       // Convert the file buffer back to PDF
-      const data = new Uint8Array(file);
-      const pdf = await pdfjsLib.getDocument(data).promise;
+      const file = Uint8Array.from(Buffer.from(data.resume, 'base64'));
+      const pdf = await pdfjsLib.getDocument(file).promise;
+
       // Extract the text from each page of the PDF
       const numPages = pdf.numPages;
       let extractedText = '';
@@ -29,8 +29,10 @@ wss.on('connection', (socket) => {
         extractedText += pageText;
       }
 
-      // Send the extracted text back to the client
-      socket.send(JSON.stringify(extractedText));
+      if (data.sendBack) {
+        // Send the extracted text back to the client
+        socket.send(JSON.stringify(extractedText));
+      }
     }
   });
 
