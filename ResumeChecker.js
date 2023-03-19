@@ -1,0 +1,550 @@
+// This function will take the extratced text from the pdf and check it against the keywords
+// Input: extractedText
+// Output: score
+// Feedback: feedback on each section
+
+const http = require('http');
+const WebSocket = require('ws');
+const pdfjsLib = require('pdfjs-dist');
+const { escape } = require('querystring');
+
+class resumechecker {
+ 
+    constructor (extractedText) {
+        this.extractedText = extractedText
+        this.feedBack = {Formatting: {Success: [], Fail: [], Score: []}, Vocabulary: {Success: [], Fail: [], Score: []}, Brevity: {Success: [], Fail: [], Score: []}, FillerWords: {Success: [], Fail: [], Score: []}}     
+        this.totalScore = 0
+           
+    } ; // Constructor takes in the extracted text from the pdf
+
+
+    updateScore(score) {
+        this.totalScore += score
+        return this.totalScore
+    }
+
+    updateFeedback(section, success, fail, score) {
+        if (section == "Formatting") {
+            for (let i = 0; i < success.length; i++) {
+                this.feedBack.Formatting.Success.push(success[i])
+            }
+            for (let i = 0; i < fail.length; i++) {
+                this.feedBack.Formatting.Fail.push(fail[i])
+            }
+            this.feedBack.Formatting.Score.push(score)
+        } else if (section == "Vocabulary") {
+            for (let i = 0; i < success.length; i++) {
+                this.feedBack.Vocabulary.Success.push(success[i])
+            }
+            for (let i = 0; i < fail.length; i++) {
+                this.feedBack.Vocabulary.Fail.push(fail[i])
+            }
+            this.feedBack.Vocabulary.Score.push(score)
+        }
+        else if (section == "Brevity") {
+            for (let i = 0; i < success.length; i++) {
+                this.feedBack.Brevity.Success.push(success[i])
+            }
+            for (let i = 0; i < fail.length; i++) {
+                this.feedBack.Brevity.Fail.push(fail[i])
+            }
+            this.feedBack.Brevity.Score.push(score)
+        }
+        else if (section == "FillerWords") {
+            for (let i = 0; i < success.length; i++) {
+                this.feedBack.FillerWords.Success.push(success[i])
+            }
+            for (let i = 0; i < fail.length; i++) {
+                this.feedBack.FillerWords.Fail.push(fail[i])
+            }
+            this.feedBack.FillerWords.Score.push(score)
+        }
+    }   
+
+    getFeedback() {
+        return this.feedBack
+    }
+
+    getScore() {
+        return this.totalScore
+    }
+
+
+    getFormattingScore() {
+        let forMatScore = 40  // Total score for formatting
+        let forMatSuc = [] // Array of successful formatting
+        let forMatFail = []  // Array of failed formatting
+
+        // Check for email, phone number, and linkedin
+        const emailRegex = /(?:[a-z0-9+!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/gi;
+        const phoneRegex = /(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})/gi;
+        if (extractedText.match(emailRegex)) {
+            forMatSuc.push("Email Address is: " + extractedText.match(emailRegex))
+        } else {
+            forMatFail.push("Email Address is missing")
+            forMatScore -= 4 
+        }
+        if (extractedText.match(phoneRegex)) {
+            forMatSuc.push("Phone Number is: " + extractedText.match(phoneRegex))
+        } else {
+            forMatFail.push("Phone Number is missing")
+            forMatScore -= 4 
+        }
+        if (extractedText.includes("LinkedIn")) {
+            forMatSuc.push("LinkedIn is present")
+        } else {
+            forMatFail.push("LinkedIn is missing")
+            forMatScore -= 2
+        }
+        // Check for section headings and add to score
+        const patternEduc = [
+            "\\nEducation\\n",
+            "\\nAcademic Qualifications\\n",
+            "\\nAcademic Background\\n",
+            "\\nEducational Background\\n",
+            "\\nAcademic History\\n",
+            "\\nEducational History\\n",
+            "\\nQualifications\\n",
+            "\\nRelevant Coursework\\n",
+            "\\nAcademic Achievements\\n",
+            "\\nDegrees\\n",
+            "\\nCertifications\\n",
+            "\\nProfessional Development\\n",
+            "\\nTraining\\n",
+            "\\nContinuing Education\\n"]
+            let educPresent = false
+        for (let i = 0; i < patternEduc.length; i++) {
+            if (extractedText.includes(patternEduc[i])) {
+                educPresent = true
+                break
+            }   
+        }
+        if (educPresent) {
+            forMatSuc.push("Education is present")
+        } else {
+            forMatFail.push("Education is missing")
+            forMatScore -= 8
+        }
+        const patternExp = [
+            "\\nExperience\\n",
+            "\\nWork Experience\\n",
+            "\\nProfessional Experience\\n",
+            "\\nEmployment History\\n",
+            "\\nWork History\\n",
+            "\\nProfessional Background\\n",
+            "\\nEmployment Experience\\n",
+            "\\nProfessional History\\n",
+            "\\nJob Experience\\n",
+            "\\nCareer History\\n",
+            "\\nEmployment\\n",
+            "\\nWork\\n"
+        ]
+        let expPresent = false
+        for (let i = 0; i < patternExp.length; i++) {
+            if (extractedText.includes(patternExp[i])) {
+                expPresent = true
+                break
+            }
+        }
+        if (expPresent) {
+            forMatSuc.push("Experience is present")
+        } else {
+            forMatFail.push("Experience is missing")
+            forMatScore -= 8
+        }
+
+        const patternSkills = [
+            "\\nSkills\\n",
+            "\\nTechnical Skills\\n",
+            "\\nProfessional Skills\\n",
+            "\\nSoft Skills\\n",
+            "\\nCore Skills\\n",
+            "\\nAreas of Expertise\\n",
+            "\\nQualifications\\n",
+            "\\nCompetencies\\n",
+            "\\nCapabilities\\n",
+            "\\nExpertise\\n",
+            "\\nStrengths\\n",
+            "\\nProficiencies\\n",
+            "\\nTechnical Competencies\\n",
+            "\\nLanguages\\n",
+            "\\nTools and Technologies\\n",
+            "\\nComputer Skills\\n",
+            "\\nLanguage Skills\\n"
+          ]
+        let skillsPresent = false
+        for (let i = 0; i < patternSkills.length; i++) {
+            if (extractedText.includes(patternSkills[i])) {
+                skillsPresent = true
+                break
+            }
+        }
+        if (skillsPresent) {
+            forMatSuc.push("Skills are present")
+        } else {
+            forMatFail.push("Skills are missing")
+            forMatScore -= 4
+        }
+
+        const patternExtraAct = [
+            "\\nActivities\\n",
+            "\\nExtracurricular Activities\\n",
+            "\\nVolunteer Experience\\n",
+            "\\nVolunteer Work\\n",
+            "\\nCommunity Service\\n",
+            "\\nCommunity Involvement\\n",
+            "\\nLeadership Experience\\n",
+            "\\nLeadership\\n",
+            "\\nLeadership Activities\\n",
+            "\\nLeadership Roles\\n",
+            "\\nLeadership Positions\\n",
+            "\\nLeadership and Volunteer Experience\\n",
+            "\\nClubs and Organizations\\n",
+            "\\nClubs\\n",
+            "\\nOrganizations\\n",
+            "\\nAssociations\\n",
+            "\\nHonors and Awards\\n",
+            "\\nHonors\\n",
+            "\\nAwards\\n",
+            "\\nPublications\\n",
+            "\\nPublications and Presentations\\n",
+            "\\nPresentations\\n",
+            "\\nPresentations and Publications\\n",
+            "\\nProfessional Affiliations\\n",
+            "\\nProfessional Memberships\\n",
+            "\\nMemberships\\n",
+            "\\nAffiliations\\n",
+            "\\nProfessional Organizations\\n",
+            "\\nProfessional Associations\\n",
+            "\\nPersonal Projects\\n",
+            "\\nPersonal Interests\\n",
+        ]
+        let extraActPresent = false
+        for (let i = 0; i < patternExtraAct.length; i++) {
+            if (extractedText.includes(patternExtraAct[i])) {
+                extraActPresent = true
+                break
+            }
+        }
+        if (extraActPresent) {
+            forMatSuc.push("Extra Activities are present")
+        } else {
+            forMatFail.push("Extra Activities are missing")
+            forMatScore -= 2
+        }
+        
+
+        // Check for Dates in the resume for foramting and and order
+
+        // let currentSectionText = "";
+        // let inOrder = true;
+        // let currentSectionName = "";
+
+
+    
+        // for (let i = 0; i < extractedText.length; i++) {
+        //     const section = extractedText[i].trim();
+          
+        //     if (section.startsWith('\n') && section.endsWith('\n')) {
+        //         // new section detected
+        //         if (currentSectionName !== "") {
+        //             // check dates order in previous section
+        //             const dates = currentSectionText.match(/(\d{1,2}\s*(th|st|nd|rd)?\s*(of)?\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?(\s*\d{2,4})?|\d{4}|\d{2}-\d{2})/g);
+            
+        //             const sortedDates = dates.map(date => {
+        //                 const parsedDate = Date.parse(date);
+        //                 return new Date(parsedDate);
+        //             }).sort((a, b) => b - a);
+            
+        //             for (let j = 0; j < sortedDates.length; j++) {
+        //                 if (currentSectionText.indexOf(sortedDates[j].toLocaleDateString()) < currentSectionText.indexOf(sortedDates[j + 1].toLocaleDateString())) {
+        //                     inOrder = false;
+        //                     break;
+        //                 }
+        //             }
+            
+        //             if (inOrder) {
+        //                 formattingScore += 1;
+        //                 feedback.push(`Dates in section "${currentSectionName}" are in chronological order.`); 
+        //             } else {
+        //                 feedback.push(`Dates in section "${currentSectionName}" are not in chronological order.`);
+        //             }
+        //         }
+            
+        //         // start new section
+        //         currentSectionName = section;
+        //         currentSectionText = "";
+        //         inOrder = true;
+        //     } else {
+        //         // append to current section text
+        //         currentSectionText += section + "\n";
+        //     }
+        // }
+        
+        // // check dates order in the last section
+        // const dates = currentSectionText.match(/(\d{1,2}\s*(th|st|nd|rd)?\s*(of)?\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?(\s*\d{2,4})?|\d{4}|\d{2}-\d{2})/g);
+        
+        // const sortedDates = dates.map(date => {
+        //     const parsedDate = Date.parse(date);
+        //     return new Date(parsedDate);
+        // }).sort((a, b) => b - a);
+
+        // console.log(sortedDates)
+        
+        // for (let j = 0; j < sortedDates.length - 1; j++) {
+        //     if (currentSectionText.indexOf(sortedDates[j].toLocaleDateString()) < currentSectionText.indexOf(sortedDates[j + 1].toLocaleDateString())) {
+        //         inOrder = false;
+        //         break;
+        //     }
+        // }
+    
+        // if (inOrder) {
+        //     forMatSuc.push(`Dates in section "${currentSectionName}" are in chronological order.`);
+        // } else {
+        //     forMatScore -= 5
+        //     forMatFail.push(`Dates in section "${currentSectionName}" are not in chronological order.`);
+        // }
+        // add the total to running total and append jason object for feedback with success and fail
+        this.updateScore(forMatScore)
+        this.updateFeedback("Formatting", forMatSuc, forMatFail, forMatScore)
+    }
+
+    getVocabScore() {
+        let vocabScore = 20
+        let vocabSuc = []
+        let vocabFail = []
+
+        const strongActionWords = [
+            "Achieved",
+            "Accomplished",
+            "Completed",
+            "Created",
+            "Developed",
+            "Delivered",
+            "Demonstrated",
+            "Designed",
+            "Directed",
+            "Established",
+            "Executed",
+            "Implemented",
+            "Improved",
+            "Increased",
+            "Innovated",
+            "Launched",
+            "Managed",
+            "Maximized",
+            "Minimized",
+            "Negotiated",
+            "Optimized",
+            "Organized",
+            "Planned",
+            "Produced",
+            "Recommended",
+            "Reduced",
+            "Researched",
+            "Revamped",
+            "Solved",
+            "Streamlined",
+            "Supervised",
+            "Trained",
+            "Transformed",
+            "Upgraded"
+        ]
+        const buzzWords = ["leadership", "strategic", "innovative", "collaborative", "creative", "analytical", "problem-solving", "results-oriented", "detail-oriented", "customer-focused", "team-player", "communication", "interpersonal", "organized", "flexible", "adaptable", "self-motivated", "entrepreneurial", "resourceful", "influential"]
+        const complexBuzzwords = [
+            "Disintermediate",
+            "Fractalize",
+            "Synergize",
+            "Leverage",
+            "Holistic",
+            "Diversity and Inclusion",
+            "Future-proofing",
+            "Blockchain",
+            "Artificial Intelligence",
+            "Big Data",
+            "Deep Learning",
+            "Neural Networks",
+            "Cloud Computing",
+            "Internet of Things",
+            "Digital Transformation",
+            "Virtual Reality",
+            "Augmented Reality",
+            "Quantum Computing",
+            "Sustainability",
+            "Hyperconnectivity"
+        ]
+
+        // Check for strong action words
+        let maxStrong = 0
+        for (let i = 0; i < strongActionWords.length; i++ && maxStrong != 8) {
+            if (extractedText.includes(strongActionWords[i])) {
+                maxStrong += 1
+            }
+        }
+
+        if (maxStrong = 8) {
+            vocabSuc.push("Strong Action Words are present")
+        } else {
+            vocabFail.push("Strong Action Words are missing")
+            vocabScore -= 8
+        }
+        // Check for buzzwords
+        const maxBuzz = 7
+        for (let i = 0; i < buzzWords.length; i++ && maxBuzz > 0) {
+            if (extractedText.includes(buzzWords[i])) {
+                maxBuzz -= 1
+                vocabScore -= 1
+            }
+        }
+
+        if (maxBuzz == 0) {
+            vocabFail.push("Buzzwords are present")
+        }
+        else
+        {
+            vocabSuc.push("Buzzwords are missing")
+        }
+
+        // Check for complex buzzwords
+        const maxComplexBuzz = 5
+        for (let i = 0; i < complexBuzzwords.length; i++ && maxComplexBuzz > 0) {
+            if (extractedText.includes(complexBuzzwords[i])) {
+                maxComplexBuzz -= 1
+                vocabScore -= 1
+            }
+        }
+
+        if (maxComplexBuzz == 0) {
+            vocabFail.push("Complex Buzzwords are present")
+        }
+        else
+        {
+            vocabSuc.push("Complex Buzzwords are missing")
+        }
+        
+
+        // add the total to running total and append jason object for feedback with success and fail
+        this.updateScore(vocabScore)
+        this.updateFeedback("Vocabulary", vocabSuc, vocabFail, vocabScore)
+    }
+
+    getBrevityScore() {
+        let brevityScore = 20
+        let brevitySuc = []
+        let brevityFail = []
+
+        // Check for word count
+        const words = extractedText.split(" ")
+          
+
+        if (words.length > 400) {
+            brevitySuc.push("Word Count is greater than 400")
+        } else {
+            brevityFail.push("Word Count is less than 400")
+            brevityScore -= 8
+        }
+
+        // check each bullet point in the extrected text for word count the
+        const bulletPoints = extractedText.split(/-|\+|=|•|\*/)
+        const maxLengthBullet = 30
+        let maxpoint = 5
+        for (let i = 0; i < bulletPoints.length; i++ && maxpoint > 0) {
+            if (bulletPoints[i].length > maxLengthBullet) {
+                maxpoint -= 1
+                brevityScore -= 1
+            }
+        }
+
+        if (maxpoint = 0) {
+            brevityFail.push("Bullet Points are too long")
+        }
+
+        if (bulletPoints.length < 16) {
+            brevityFail.push("Bullet Points are less than 16")
+        }
+        else {
+            brevitySuc.push("Bullet Points are greater than 16")
+        }
+
+        // paragraph presense check
+        const paragraphs = extractedText.split(/(\r\n|\n\n|\r|\p)/gm)
+        const minParagraphs = 15 // 10 paragraphs
+        if (paragraphs.length > minParagraphs) {
+            brevityFail.push("Presesense of Too many paragraphs")
+            brevityScore -= 7
+        }
+        else {
+            brevitySuc.push("Presesense of enough paragraphs")
+        }
+
+        // add the total to running total and append jason object for feedback with success and fail
+        this.updateScore(brevityScore)
+        this.updateFeedback("Brevity", brevitySuc, brevityFail, brevityScore)
+    }
+
+    getFillerScore() {
+        let fillerScore = 20
+        let fillerSuc = []
+        let fillerFail = []
+
+        // Check for filler words
+        const fillerWords = ["achieved", "assisted", "collaborated", "created", "demonstrated", "developed", "established", "executed", "facilitated", "generated", "improved", "implemented", "increased", "initiated", "led", "managed", "maximized", "minimized", "monitored", "negotiated", "optimized", "oversaw", "performed", "planned", "prioritized", "resolved", "revamped", "streamlined", "supervised", "trained"];
+        let fillerWordsUsed = []
+        let maxFiller = 5
+        for (let i = 0; i < fillerWords.length; i++) {
+            if (extractedText.includes(fillerWords[i])) {
+                fillerWordsUsed.push(fillerWords[i])
+                maxFiller -= 1
+            }
+        }
+
+        if (maxFiller = 0 && fillerWords.length > 0) {
+            fillerFail.push("Filler Words are present here is the list of words you can replace to increase your score: " + fillerWordsUsed)
+            fillerScore -= 10
+        }
+
+        if (fillerWords.length = 0) {
+            fillerSuc.push("Filler Words are not present")
+        }
+
+        // now check for overuse of filler words for every 2 filer words over 10,  1 point is deducted
+        let fillerLimit = 10
+        if (fillerWords.length > 10) {
+            for (i = 0; i < fillerLimit.length; i++) {
+                fillerLimit -= 2
+                fillerScore -= 1
+            }
+            fillerFail.push("Filler Words are overused")
+        }
+
+        // add the total to running total and append jason object for feedback with success and fail
+        this.updateScore(fillerScore)
+        this.updateFeedback("FillerWords", fillerSuc, fillerFail, fillerScore)
+    }
+}
+
+extractedText = String.raw`Niravbhai Pandya\n \nEmail: niravpandya411@gmail.com\nLocation:Ontario, Canada\n \nMobile:\n \n709-687-4545\nE.I.T. (Engineer In Training)\n \nPEGNL Member\nLinkedIn: linkedin.com/in/nirav-pandya25\n\nEducation\n\n•\n \nMemorial University of Newfoundland\n \nSt. Johns, Canada\n\nMaster of Science - Oil and Gas Engineering\n \n01/2019 to 08/2020\n\nCourses:\n \nProduction, Safety Engineering, Phase Behavior, Reservoir, Drilling, Natural Gas, Reliability Engineering, Engineering\nEconomics\n\n•\n \nGujarat Technological University\n \nGujarat, India\n\nBachelor of Engineering - Process Engineering\n \n07/2012 to 06/2016\n\nCourses:\n \nMass Transfer, Chemical Reaction, Production Planning, Engineering Drawing/Graphics, Thermodynamics, Advance Safety,\nEngineering Planning and Execution\n\nSkills Summary\n\n•\n \nSoft Skill\n:\n \nLeadership, Public Speaking, Problem-Solving, Analytical Thinking, Cross Discipline Contribution and\nTeamwork, Competitive\n\n•\n \nTechnical Skills\n:\n \nProject Management, Project Planning, Project & Controls, Operations Management, SAP,\nAutoCAD/CAD, HAZOP Studies, P&ID Preparation and Modifications, ECLIPESE, KAPPA PVT Simulation, CMG\nSoftware, SAP & Single View Programming, Six Sigma, KPI, Process Improvement, Production, MATLAB\n\nExperience\n\n•\n \nInmarsat\n \nSt. Johns, NL\n\nBilling Dispute Analyst\n \n09/2021 to Present\n\n◦\n \nBilling Disputes Resolution\n: Investigating and resolving complex billing disputes through thorough research and\nanalysis of customer records.\n\n◦\n \nPost-Resolution Checks\n: Conducting post-resolution checks to ensure accuracy and customer satisfaction.\n\n◦\n \nSAP Utilization\n: UUtilizing SAP to summarize and simplify complex data for senior management and presenting\neffective solutions.\n\n◦\n \nTrend Analysis\n: Identifying and analyzing recurring billing errors through trend analysis, in order to implement\npreventative measures.\n\n•\n \nBurger King\n \nSt. Johns, NL\n\nAssistant Manager\n \n07/2020 to 08/2021\n\n◦\n \nPlanning Tasks & Scheduling\n: Managed daily operations and ensured smooth functioning of the store by efficiently\nplanning tasks and scheduling employees.\n\n◦\n \nPerformance Reviews\n: Improved employee performance by conducting regular performance evaluations, identifying\nareas of improvement and implementing incentives and promotions.\n\n◦\n \nSafety and Best Food Handling Practices\n: Ensured compliance with government and corporate guidelines for food\nsafety and handling practices to ensure maximum customer satisfaction and a safe work environment.\n\n•\n \nGujarat Fluorochemicals Limited\n \nBharuch, India\n\nProduction Engineer\n \n11/2017 to 05/2018\n\n◦\n \nAnalysis and Prevention\n: Conducted root cause analysis to identify and implement effective and long-term corrective\nactions, and documented faults for future prevention.\n\n◦\n \nPlant Operation and Reporting\n: Troubleshooted and resolved day-to-day operational issues and compiled monthly\nreports for senior management review.\n\n◦\n \nHAZOP Studies and Safe Work Planning\n: Actively participated in regular plant-wide HAZOP studies and\ndeveloped, implemented and distributed safe work procedures for technicians and workers.\n\n◦\n \nCross Discipline Collaboration\n: Collaborated with cross-functional teams to provide input on process improvements\nto increase production while maintaining quality standards.\n\n•\n \nLupin Limited\n \nVadodara, India\n\nProcess Engineer\n \n08/2016 to 11/2017\n\n◦\n \nTechnology Transfer Documentation\n: Led technology transfer documentation efforts, including volume calculations,\nstandard operating procedure (SOP) development, TRT calculation, capacity calculations, utility calculations, feasibility\nanalysis, and PFD creation/modification.\n\n◦\n \nPlant Unit Operation\n: Managed day-to-day operations of various plant units, including distillation, evaporator,\ncentrifuge, and dryer.\n\n◦\n \nInvestment Analysis and Planning\n: Conducted cost-benefit analyses and planned for new equipment and plant\nexpansions.\n\n◦\n \nConstructive Input and Reporting\n: Provided regular, constructive input to plant manager and operations lead on\nareas for improvement, and reported on progress and performance.Certifications\n\n•\n \nEngineer in Training (EIT)\n: PEGNL, Newfoundland, Canada 06/21\n\n•\n \nFirst Aid at Work\n: Green World Group 02/21\n\n•\n \nISO 45001:2018 Internal Auditor Awareness\n: Green World Group 02/21\n\n•\n \nDisaster Management with Advanced Emergency Response Principles\n \n: CPD Standards Office 02/21\n\n•\n \nEssential Fire and Safety Principles\n: Green World Group 02/21\n\n•\n \nGMP-Good Manufacturing Practices\n: Udemy\n\n•\n \nLean Six Sigma\n: Project Management Institute (PIMA) 05/21`;
+
+console.log(extractedText)
+testingResumeScore = new resumechecker(extractedText)
+testingResumeScore.getFormattingScore()
+testingResumeScore.getFillerScore()
+testingResumeScore.getBrevityScore()
+testingResumeScore.getVocabScore()
+
+
+
+totalScoreReceived = testingResumeScore.getScore()
+
+console.log(totalScoreReceived)
+
+feedBackReceived = testingResumeScore.getFeedback()
+
+
+console.log(feedBackReceived)
+
+
+          
+
+        
+        
