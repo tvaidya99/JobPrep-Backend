@@ -7,6 +7,8 @@ const http = require('http');
 const WebSocket = require('ws');
 const pdfjsLib = require('pdfjs-dist');
 const { escape } = require('querystring');
+var  dataBase = require('./data.json');
+
 
 
 module.exports = class resumechecker {
@@ -100,24 +102,9 @@ module.exports = class resumechecker {
             forMatScore -= 5 // Added 3 for Date
         }
         // Check for section headings and add to score
-        const patternEduc = [
-            " Education ",
-            " Academic Qualifications ",
-            " Academic Background ",
-            " Educational Background ",
-            " Academic History ",
-            " Educational History ",
-            " Qualifications ",
-            " Relevant Coursework ",
-            " Academic Achievements ",
-            " Degrees ",
-            " Certifications ",
-            " Professional Development ",
-            " Training ",
-            " Continuing Education "]
             let educPresent = false
-        for (let i = 0; i < patternEduc.length; i++) {
-            if (this.extractedText.includes(patternEduc[i])) {
+        for (let i = 0; i <  dataBase.patternEduc.length; i++) {
+            if (this.extractedText.includes(dataBase.patternEduc[i])) {
                 educPresent = true
                 break
             }   
@@ -128,23 +115,10 @@ module.exports = class resumechecker {
             forMatFail.push("Education is missing")
             forMatScore -= 8
         }
-        const patternExp = [
-            " Experience ",
-            " Work Experience ",
-            " Professional Experience ",
-            " Employment History ",
-            " Work History ",
-            " Professional Background ",
-            " Employment Experience ",
-            " Professional History ",
-            " Job Experience ",
-            " Career History ",
-            " Employment ",
-            " Work "
-        ]
+
         let expPresent = false
-        for (let i = 0; i < patternExp.length; i++) {
-            if (this.extractedText.includes(patternExp[i])) {
+        for (let i = 0; i <  dataBase.patternExp.length; i++) {
+            if (this.extractedText.includes(dataBase.patternExp[i])) {
                 expPresent = true
                 break
             }
@@ -156,46 +130,9 @@ module.exports = class resumechecker {
             forMatScore -= 8
         }
 
-        const patternSkills = [
-            " Skills ",
-            " Technical Skills ",
-            " Professional Skills ",
-            " Soft Skills ",
-            " Core Skills ",
-            " Areas of Expertise ",
-            " Qualifications ",
-            " Competencies ",
-            " Capabilities ",
-            " Expertise ",
-            " Strengths ",
-            " Proficiencies ",
-            " Technical Competencies ",
-            " Languages ",
-            "Tools and Technologies",
-            "Computer Skill ",
-            "Language Skills",
-            "Software Skills",
-            "Software Proficiency",
-            "Software Knowledge",
-            "Software Experience",
-            "Software Skills",
-            "Technical Expertise",
-            "Technical Proficiency",
-            "Technical Knowledge",
-            "Technical Experience",
-            "Technical Skills",
-            "Technical Competencies",
-            "Technical Proficiencies",
-            "Technical Qualifications",
-            "Technical Abilities",
-            "Technical Strengths",
-            "Technical Capabilities",
-            "Technical Expertise",
-            "Technical Competencies",
-          ]
         let skillsPresent = false
-        for (let i = 0; i < patternSkills.length; i++) {
-            if (this.extractedText.match(patternSkills[i])) {
+        for (let i = 0; i <  dataBase.patternSkills.length; i++) {
+            if (this.extractedText.match(dataBase.patternSkills[i])) {
                 skillsPresent = true
                 break
             }
@@ -206,43 +143,9 @@ module.exports = class resumechecker {
             forMatFail.push("Skills are missing")
             forMatScore -= 4
         }
-
-        const patternExtraAct = [
-            " Activities ",
-            " Extracurricular Activities ",
-            " Volunteer Experience ",
-            " Volunteer Work ",
-            " Community Service ",
-            " Community Involvement ",
-            " Leadership Experience ",
-            " Leadership ",
-            " Leadership Activities ",
-            " Leadership Roles ",
-            " Leadership Positions ",
-            " Leadership and Volunteer Experience ",
-            " Clubs and Organizations ",
-            " Clubs ",
-            " Organizations ",
-            " Associations ",
-            " Honors and Awards ",
-            " Honors ",
-            " Awards ",
-            " Publications ",
-            " Publications and Presentations ",
-            " Presentations ",
-            " Presentations and Publications ",
-            " Professional Affiliations ",
-            " Professional Memberships ",
-            " Memberships ",
-            " Affiliations ",
-            " Professional Organizations ",
-            " Professional Associations ",
-            " Personal Projects ",
-            " Personal Interests ",
-        ]
         let extraActPresent = false
-        for (let i = 0; i < patternExtraAct.length; i++) {
-            if (this.extractedText.includes(patternExtraAct[i])) {
+        for (let i = 0; i <  dataBase.patternExtraAct.length; i++) {
+            if (this.extractedText.includes(dataBase.patternExtraAct[i])) {
                 extraActPresent = true
                 break
             }
@@ -335,70 +238,10 @@ module.exports = class resumechecker {
         let vocabSuc = []
         let vocabFail = []
 
-        const strongActionWords = [
-            "Achieved",
-            "Accomplished",
-            "Completed",
-            "Created",
-            "Developed",
-            "Delivered",
-            "Demonstrated",
-            "Designed",
-            "Directed",
-            "Established",
-            "Executed",
-            "Implemented",
-            "Improved",
-            "Increased",
-            "Innovated",
-            "Launched",
-            "Managed",
-            "Maximized",
-            "Minimized",
-            "Negotiated",
-            "Optimized",
-            "Organized",
-            "Planned",
-            "Produced",
-            "Recommended",
-            "Reduced",
-            "Researched",
-            "Revamped",
-            "Solved",
-            "Streamlined",
-            "Supervised",
-            "Trained",
-            "Transformed",
-            "Upgraded"
-        ]
-        const buzzWords = ["leadership", "strategic", "innovative", "collaborative", "creative", "analytical", "problem-solving", "results-oriented", "detail-oriented", "customer-focused", "team-player", "communication", "interpersonal", "organized", "flexible", "adaptable", "self-motivated", "entrepreneurial", "resourceful", "influential"]
-        const complexBuzzwords = [
-            "Disintermediate",
-            "Fractalize",
-            "Synergize",
-            "Leverage",
-            "Holistic",
-            "Diversity and Inclusion",
-            "Future-proofing",
-            "Blockchain",
-            "Artificial Intelligence",
-            "Big Data",
-            "Deep Learning",
-            "Neural Networks",
-            "Cloud Computing",
-            "Internet of Things",
-            "Digital Transformation",
-            "Virtual Reality",
-            "Augmented Reality",
-            "Quantum Computing",
-            "Sustainability",
-            "Hyperconnectivity"
-        ]
-
         // Check for strong action words
         let maxStrong = 0
-        for (let i = 0; i < strongActionWords.length; i++ && maxStrong != 8) {
-            if (this.extractedText.includes(strongActionWords[i])) {
+        for (let i = 0; i <  dataBase.strongActionWords.length; i++ && maxStrong != 8) {
+            if (this.extractedText.includes(dataBase.strongActionWords[i])) {
                 maxStrong += 1
             }
         }
@@ -411,8 +254,8 @@ module.exports = class resumechecker {
         }
         // Check for buzzwords
         const maxBuzz = 7
-        for (let i = 0; i < buzzWords.length; i++ && maxBuzz > 0) {
-            if (this.extractedText.includes(buzzWords[i])) {
+        for (let i = 0; i <  dataBase.buzzWords.length; i++ && maxBuzz > 0) {
+            if (this.extractedText.includes(dataBase.buzzWords[i])) {
                 maxBuzz -= 1
                 vocabScore -= 1
             }
@@ -428,8 +271,8 @@ module.exports = class resumechecker {
 
         // Check for complex buzzwords
         const maxComplexBuzz = 5
-        for (let i = 0; i < complexBuzzwords.length; i++ && maxComplexBuzz > 0) {
-            if (this.extractedText.includes(complexBuzzwords[i])) {
+        for (let i = 0; i <  dataBase.complexBuzzwords.length; i++ && maxComplexBuzz > 0) {
+            if (this.extractedText.includes(dataBase.complexBuzzwords[i])) {
                 maxComplexBuzz -= 1
                 vocabScore -= 1
             }
@@ -511,28 +354,27 @@ module.exports = class resumechecker {
         let fillerFail = []
 
         // Check for filler words
-        const fillerWords = ["achieved", "assisted", "collaborated", "created", "demonstrated", "developed", "established", "executed", "facilitated", "generated", "improved", "implemented", "increased", "initiated", "led", "managed", "maximized", "minimized", "monitored", "negotiated", "optimized", "oversaw", "performed", "planned", "prioritized", "resolved", "revamped", "streamlined", "supervised", "trained"];
         let fillerWordsUsed = []
         let maxFiller = 5
-        for (let i = 0; i < fillerWords.length; i++) {
-            if (this.extractedText.includes(fillerWords[i])) {
-                fillerWordsUsed.push(fillerWords[i])
+        for (let i = 0; i <  dataBase.fillerWords.length; i++) {
+            if (this.extractedText.includes(dataBase.fillerWords[i])) {
+                fillerWordsUsed.push(dataBase.fillerWords[i])
                 maxFiller -= 1
             }
         }
 
-        if (maxFiller == 0 && fillerWords.length > 0) {
+        if (maxFiller == 0 &&  dataBase.fillerWords.length > 0) {
             fillerFail.push("Filler Words are present here is the list of words you can replace to increase your score: " + fillerWordsUsed)
             fillerScore -= 10
         }
 
-        if (fillerWords.length == 0) {
+        if (fillerWordsUsed.length == 0) {
             fillerSuc.push("Filler Words are not present")
         }
 
         // now check for overuse of filler words for every 2 filer words over 10,  1 point is deducted
         let fillerLimit = 10
-        if (fillerWords.length > 10) {
+        if (fillerWordsUsed.length > 10) {
             for (let i = 0; i < fillerLimit.length; i++ && fillerLimit > 0) {
                 fillerLimit -= 2
                 fillerScore -= 1
@@ -546,7 +388,7 @@ module.exports = class resumechecker {
     }
 }
 
-// extractedText = String.raw`Niravbhai Pandya\n \nEmail: niravpandya411@gmail.com\nLocation:Ontario, Canada\n \nMobile:\n \n709-687-4545\nE.I.T. (Engineer In Training)\n \nPEGNL Member\nLinkedIn: linkedin.com/in/nirav-pandya25\n\nEducation\n\n•\n \nMemorial University of Newfoundland\n \nSt. Johns, Canada\n\nMaster of Science - Oil and Gas Engineering\n \n01/2019 to 08/2020\n\nCourses:\n \nProduction, Safety Engineering, Phase Behavior, Reservoir, Drilling, Natural Gas, Reliability Engineering, Engineering\nEconomics\n\n•\n \nGujarat Technological University\n \nGujarat, India\n\nBachelor of Engineering - Process Engineering\n \n07/2012 to 06/2016\n\nCourses:\n \nMass Transfer, Chemical Reaction, Production Planning, Engineering Drawing/Graphics, Thermodynamics, Advance Safety,\nEngineering Planning and Execution\n\nSkills Summary\n\n•\n \nSoft Skill\n:\n \nLeadership, Public Speaking, Problem-Solving, Analytical Thinking, Cross Discipline Contribution and\nTeamwork, Competitive\n\n•\n \nTechnical Skills\n:\n \nProject Management, Project Planning, Project & Controls, Operations Management, SAP,\nAutoCAD/CAD, HAZOP Studies, P&ID Preparation and Modifications, ECLIPESE, KAPPA PVT Simulation, CMG\nSoftware, SAP & Single View Programming, Six Sigma, KPI, Process Improvement, Production, MATLAB\n\nExperience\n\n•\n \nInmarsat\n \nSt. Johns, NL\n\nBilling Dispute Analyst\n \n09/2021 to Present\n\n◦\n \nBilling Disputes Resolution\n: Investigating and resolving complex billing disputes through thorough research and\nanalysis of customer records.\n\n◦\n \nPost-Resolution Checks\n: Conducting post-resolution checks to ensure accuracy and customer satisfaction.\n\n◦\n \nSAP Utilization\n: UUtilizing SAP to summarize and simplify complex data for senior management and presenting\neffective solutions.\n\n◦\n \nTrend Analysis\n: Identifying and analyzing recurring billing errors through trend analysis, in order to implement\npreventative measures.\n\n•\n \nBurger King\n \nSt. Johns, NL\n\nAssistant Manager\n \n07/2020 to 08/2021\n\n◦\n \nPlanning Tasks & Scheduling\n: Managed daily operations and ensured smooth functioning of the store by efficiently\nplanning tasks and scheduling employees.\n\n◦\n \nPerformance Reviews\n: Improved employee performance by conducting regular performance evaluations, identifying\nareas of improvement and implementing incentives and promotions.\n\n◦\n \nSafety and Best Food Handling Practices\n: Ensured compliance with government and corporate guidelines for food\nsafety and handling practices to ensure maximum customer satisfaction and a safe work environment.\n\n•\n \nGujarat Fluorochemicals Limited\n \nBharuch, India\n\nProduction Engineer\n \n11/2017 to 05/2018\n\n◦\n \nAnalysis and Prevention\n: Conducted root cause analysis to identify and implement effective and long-term corrective\nactions, and documented faults for future prevention.\n\n◦\n \nPlant Operation and Reporting\n: Troubleshooted and resolved day-to-day operational issues and compiled monthly\nreports for senior management review.\n\n◦\n \nHAZOP Studies and Safe Work Planning\n: Actively participated in regular plant-wide HAZOP studies and\ndeveloped, implemented and distributed safe work procedures for technicians and workers.\n\n◦\n \nCross Discipline Collaboration\n: Collaborated with cross-functional teams to provide input on process improvements\nto increase production while maintaining quality standards.\n\n•\n \nLupin Limited\n \nVadodara, India\n\nProcess Engineer\n \n08/2016 to 11/2017\n\n◦\n \nTechnology Transfer Documentation\n: Led technology transfer documentation efforts, including volume calculations,\nstandard operating procedure (SOP) development, TRT calculation, capacity calculations, utility calculations, feasibility\nanalysis, and PFD creation/modification.\n\n◦\n \nPlant Unit Operation\n: Managed day-to-day operations of various plant units, including distillation, evaporator,\ncentrifuge, and dryer.\n\n◦\n \nInvestment Analysis and Planning\n: Conducted cost-benefit analyses and planned for new equipment and plant\nexpansions.\n\n◦\n \nConstructive Input and Reporting\n: Provided regular, constructive input to plant manager and operations lead on\nareas for improvement, and reported on progress and performance.Certifications\n\n•\n \nEngineer in Training (EIT)\n: PEGNL, Newfoundland, Canada 06/21\n\n•\n \nFirst Aid at Work\n: Green World Group 02/21\n\n•\n \nISO 45001:2018 Internal Auditor Awareness\n: Green World Group 02/21\n\n•\n \nDisaster Management with Advanced Emergency Response Principles\n \n: CPD Standards Office 02/21\n\n•\n \nEssential Fire and Safety Principles\n: Green World Group 02/21\n\n•\n \nGMP-Good Manufacturing Practices\n: Udemy\n\n•\n \nLean Six Sigma\n: Project Management Institute (PIMA) 05/21`;
+// extractedText = String.raw`Niravbhai Pandya\n \nEmail: niravpandya411@gmail.com\nLocation:Ontario, Canada\n \nMobile:\n \n709-687-4545\nE.I.T. (Engineer In Training)\n \nPEGNL Member\nLinkedIn: linkedin.com/in/nirav-pandya25\n\nEducation\n\n•\n \nMemorial University of Newfoundland\n \nSt. Johns, Canada\n\nMaster of Science - Oil and Gas Engineering\n \n01/2019 to 08/2020\n\nCourses:\n \nProduction, Safety Engineering, Phase Behavior, Reservoir, Drilling, Natural Gas, Reliability Engineering, Engineering\nEconomics\n\n•\n \nGujarat Technological University\n \nGujarat, India\n\nBachelor of Engineering - Process Engineering\n \n07/2012 to 06/2016\n\nCourses:\n \nMass Transfer, Chemical Reaction, Production Planning, Engineering Drawing/Graphics, Thermodynamics, Advance Safety,\nEngineering Planning and Execution\n\nSkills Summary\n\n•\n \nSoft Skill\n:\n \nLeadership, Public Speaking, Problem-Solving, Analytical Thinking, Cross Discipline Contribution and\nTeamwork, Competitive\n\n•\n \nTechnical Skills\n:\n \nProject Management, Project Planning, Project & Controls, Operations Management, SAP,\nAutoCAD/CAD, HAZOP Studies, P&ID Preparation and Modifications, ECLIPESE, KAPPA PVT Simulation, CMG\nSoftware, SAP & Single View Programming, Six Sigma, KPI, Process Improvement, Production, MATLAB\n\nExperience\n\n•\n \nInmarsat\n \nSt. Johns, NL\n\nBilling Dispute Analyst\n \n09/2021 to Present\n\n◦\n \nBilling Disputes Resolution\n: Investigating and resolving complex billing disputes through thorough research and\nanalysis of customer records.\n\n◦\n \nPost-Resolution Checks\n: Conducting post-resolution checks to ensure accuracy and customer satisfaction.\n\n◦\n \nSAP Utilization\n: UUtilizing SAP to summarize and simplify complex  dataBase for senior management and presenting\neffective solutions.\n\n◦\n \nTrend Analysis\n: Identifying and analyzing recurring billing errors through trend analysis, in order to implement\npreventative measures.\n\n•\n \nBurger King\n \nSt. Johns, NL\n\nAssistant Manager\n \n07/2020 to 08/2021\n\n◦\n \nPlanning Tasks & Scheduling\n: Managed daily operations and ensured smooth functioning of the store by efficiently\nplanning tasks and scheduling employees.\n\n◦\n \nPerformance Reviews\n: Improved employee performance by conducting regular performance evaluations, identifying\nareas of improvement and implementing incentives and promotions.\n\n◦\n \nSafety and Best Food Handling Practices\n: Ensured compliance with government and corporate guidelines for food\nsafety and handling practices to ensure maximum customer satisfaction and a safe work environment.\n\n•\n \nGujarat Fluorochemicals Limited\n \nBharuch, India\n\nProduction Engineer\n \n11/2017 to 05/2018\n\n◦\n \nAnalysis and Prevention\n: Conducted root cause analysis to identify and implement effective and long-term corrective\nactions, and documented faults for future prevention.\n\n◦\n \nPlant Operation and Reporting\n: Troubleshooted and resolved day-to-day operational issues and compiled monthly\nreports for senior management review.\n\n◦\n \nHAZOP Studies and Safe Work Planning\n: Actively participated in regular plant-wide HAZOP studies and\ndeveloped, implemented and distributed safe work procedures for technicians and workers.\n\n◦\n \nCross Discipline Collaboration\n: Collaborated with cross-functional teams to provide input on process improvements\nto increase production while maintaining quality standards.\n\n•\n \nLupin Limited\n \nVadodara, India\n\nProcess Engineer\n \n08/2016 to 11/2017\n\n◦\n \nTechnology Transfer Documentation\n: Led technology transfer documentation efforts, including volume calculations,\nstandard operating procedure (SOP) development, TRT calculation, capacity calculations, utility calculations, feasibility\nanalysis, and PFD creation/modification.\n\n◦\n \nPlant Unit Operation\n: Managed day-to-day operations of various plant units, including distillation, evaporator,\ncentrifuge, and dryer.\n\n◦\n \nInvestment Analysis and Planning\n: Conducted cost-benefit analyses and planned for new equipment and plant\nexpansions.\n\n◦\n \nConstructive Input and Reporting\n: Provided regular, constructive input to plant manager and operations lead on\nareas for improvement, and reported on progress and performance.Certifications\n\n•\n \nEngineer in Training (EIT)\n: PEGNL, Newfoundland, Canada 06/21\n\n•\n \nFirst Aid at Work\n: Green World Group 02/21\n\n•\n \nISO 45001:2018 Internal Auditor Awareness\n: Green World Group 02/21\n\n•\n \nDisaster Management with Advanced Emergency Response Principles\n \n: CPD Standards Office 02/21\n\n•\n \nEssential Fire and Safety Principles\n: Green World Group 02/21\n\n•\n \nGMP-Good Manufacturing Practices\n: Udemy\n\n•\n \nLean Six Sigma\n: Project Management Institute (PIMA) 05/21`;
 
 // testingResumeScore = new resumechecker(extractedText)
 
