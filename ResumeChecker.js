@@ -253,7 +253,7 @@ module.exports = class resumechecker {
             vocabScore -= 8
         }
         // Check for buzzwords
-        const maxBuzz = 7
+        let maxBuzz = 7
         for (let i = 0; i <  dataBase.buzzWords.length; i++ && maxBuzz > 0) {
             if (this.extractedText.includes(dataBase.buzzWords[i])) {
                 maxBuzz -= 1
@@ -334,8 +334,14 @@ module.exports = class resumechecker {
 
         // paragraph presense check
         const paragraphs = this.extractedText.split(/(\r\n|\n\n|\r|\p)/gm)
-        const minParagraphs = 15 // 15 paragraphs
-        if (paragraphs.length > minParagraphs) {
+        const maxParagraphs = 25 // 15 paragraphs
+        let paragraphLen = 0
+        for (let i = 0; i < paragraphs.length; i++) {
+            if (paragraphs[i].length > 30) {
+                paragraphLen += 1
+            }
+        }
+        if (paragraphLen > maxParagraphs) {
             brevityFail.push("Presense of too many paragraphs")
             brevityScore -= 7
         }
