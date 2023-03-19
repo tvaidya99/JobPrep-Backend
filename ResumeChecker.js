@@ -61,12 +61,12 @@ class resumechecker {
         }
     }   
 
-    getFeedback() {
-        return this.feedBack
-    }
-
-    getScore() {
-        return this.totalScore
+    getResult() {
+        this.getFormattingScore()
+        this.getVocabScore()
+        this.getBrevityScore()
+        this.getFillerScore()
+        return [this.feedBack, this.totalScore]
     }
 
 
@@ -82,19 +82,19 @@ class resumechecker {
             forMatSuc.push("Email Address is: " + extractedText.match(emailRegex))
         } else {
             forMatFail.push("Email Address is missing")
-            forMatScore -= 4 
+            forMatScore -= 5  // Added 1 for Date
         }
         if (extractedText.match(phoneRegex)) {
             forMatSuc.push("Phone Number is: " + extractedText.match(phoneRegex))
         } else {
             forMatFail.push("Phone Number is missing")
-            forMatScore -= 4 
+            forMatScore -= 5 // Added 1 for Date
         }
         if (extractedText.includes("LinkedIn")) {
             forMatSuc.push("LinkedIn is present")
         } else {
             forMatFail.push("LinkedIn is missing")
-            forMatScore -= 2
+            forMatScore -= 5 // Added 3 for Date
         }
         // Check for section headings and add to score
         const patternEduc = [
@@ -382,7 +382,7 @@ class resumechecker {
             }
         }
 
-        if (maxStrong = 8) {
+        if (maxStrong == 4) {
             vocabSuc.push("Strong Action Words are present")
         } else {
             vocabFail.push("Strong Action Words are missing")
@@ -421,7 +421,7 @@ class resumechecker {
         {
             vocabSuc.push("Complex Buzzwords are missing")
         }
-        
+
 
         // add the total to running total and append jason object for feedback with success and fail
         this.updateScore(vocabScore)
@@ -451,30 +451,32 @@ class resumechecker {
         for (let i = 0; i < bulletPoints.length; i++ && maxpoint > 0) {
             if (bulletPoints[i].length > maxLengthBullet) {
                 maxpoint -= 1
-                brevityScore -= 1
             }
         }
 
-        if (maxpoint = 0) {
-            brevityFail.push("Bullet Points are too long")
+        if (maxpoint == 0) {
+            brevityFail.push("Bullet Points are too long.")
+            brevityScore -= 2
         }
 
         if (bulletPoints.length < 16) {
-            brevityFail.push("Bullet Points are less than 16")
+            brevityFail.push("Bullet Points are less than 16 in total.")
+            brevityScore -= 3
         }
         else {
-            brevitySuc.push("Bullet Points are greater than 16")
+            brevitySuc.push("Bullet Points are greater than 16 in total.")
+
         }
 
         // paragraph presense check
         const paragraphs = extractedText.split(/(\r\n|\n\n|\r|\p)/gm)
-        const minParagraphs = 15 // 10 paragraphs
+        const minParagraphs = 15 // 15 paragraphs
         if (paragraphs.length > minParagraphs) {
-            brevityFail.push("Presesense of Too many paragraphs")
+            brevityFail.push("Presense of too many paragraphs")
             brevityScore -= 7
         }
         else {
-            brevitySuc.push("Presesense of enough paragraphs")
+            brevitySuc.push("Presense of enough paragraphs")
         }
 
         // add the total to running total and append jason object for feedback with success and fail
@@ -498,19 +500,19 @@ class resumechecker {
             }
         }
 
-        if (maxFiller = 0 && fillerWords.length > 0) {
+        if (maxFiller == 0 && fillerWords.length > 0) {
             fillerFail.push("Filler Words are present here is the list of words you can replace to increase your score: " + fillerWordsUsed)
             fillerScore -= 10
         }
 
-        if (fillerWords.length = 0) {
+        if (fillerWords.length == 0) {
             fillerSuc.push("Filler Words are not present")
         }
 
         // now check for overuse of filler words for every 2 filer words over 10,  1 point is deducted
         let fillerLimit = 10
         if (fillerWords.length > 10) {
-            for (i = 0; i < fillerLimit.length; i++) {
+            for (let i = 0; i < fillerLimit.length; i++ && fillerLimit > 0) {
                 fillerLimit -= 2
                 fillerScore -= 1
             }
@@ -523,25 +525,14 @@ class resumechecker {
     }
 }
 
-extractedText = String.raw`Niravbhai Pandya\n \nEmail: niravpandya411@gmail.com\nLocation:Ontario, Canada\n \nMobile:\n \n709-687-4545\nE.I.T. (Engineer In Training)\n \nPEGNL Member\nLinkedIn: linkedin.com/in/nirav-pandya25\n\nEducation\n\n•\n \nMemorial University of Newfoundland\n \nSt. Johns, Canada\n\nMaster of Science - Oil and Gas Engineering\n \n01/2019 to 08/2020\n\nCourses:\n \nProduction, Safety Engineering, Phase Behavior, Reservoir, Drilling, Natural Gas, Reliability Engineering, Engineering\nEconomics\n\n•\n \nGujarat Technological University\n \nGujarat, India\n\nBachelor of Engineering - Process Engineering\n \n07/2012 to 06/2016\n\nCourses:\n \nMass Transfer, Chemical Reaction, Production Planning, Engineering Drawing/Graphics, Thermodynamics, Advance Safety,\nEngineering Planning and Execution\n\nSkills Summary\n\n•\n \nSoft Skill\n:\n \nLeadership, Public Speaking, Problem-Solving, Analytical Thinking, Cross Discipline Contribution and\nTeamwork, Competitive\n\n•\n \nTechnical Skills\n:\n \nProject Management, Project Planning, Project & Controls, Operations Management, SAP,\nAutoCAD/CAD, HAZOP Studies, P&ID Preparation and Modifications, ECLIPESE, KAPPA PVT Simulation, CMG\nSoftware, SAP & Single View Programming, Six Sigma, KPI, Process Improvement, Production, MATLAB\n\nExperience\n\n•\n \nInmarsat\n \nSt. Johns, NL\n\nBilling Dispute Analyst\n \n09/2021 to Present\n\n◦\n \nBilling Disputes Resolution\n: Investigating and resolving complex billing disputes through thorough research and\nanalysis of customer records.\n\n◦\n \nPost-Resolution Checks\n: Conducting post-resolution checks to ensure accuracy and customer satisfaction.\n\n◦\n \nSAP Utilization\n: UUtilizing SAP to summarize and simplify complex data for senior management and presenting\neffective solutions.\n\n◦\n \nTrend Analysis\n: Identifying and analyzing recurring billing errors through trend analysis, in order to implement\npreventative measures.\n\n•\n \nBurger King\n \nSt. Johns, NL\n\nAssistant Manager\n \n07/2020 to 08/2021\n\n◦\n \nPlanning Tasks & Scheduling\n: Managed daily operations and ensured smooth functioning of the store by efficiently\nplanning tasks and scheduling employees.\n\n◦\n \nPerformance Reviews\n: Improved employee performance by conducting regular performance evaluations, identifying\nareas of improvement and implementing incentives and promotions.\n\n◦\n \nSafety and Best Food Handling Practices\n: Ensured compliance with government and corporate guidelines for food\nsafety and handling practices to ensure maximum customer satisfaction and a safe work environment.\n\n•\n \nGujarat Fluorochemicals Limited\n \nBharuch, India\n\nProduction Engineer\n \n11/2017 to 05/2018\n\n◦\n \nAnalysis and Prevention\n: Conducted root cause analysis to identify and implement effective and long-term corrective\nactions, and documented faults for future prevention.\n\n◦\n \nPlant Operation and Reporting\n: Troubleshooted and resolved day-to-day operational issues and compiled monthly\nreports for senior management review.\n\n◦\n \nHAZOP Studies and Safe Work Planning\n: Actively participated in regular plant-wide HAZOP studies and\ndeveloped, implemented and distributed safe work procedures for technicians and workers.\n\n◦\n \nCross Discipline Collaboration\n: Collaborated with cross-functional teams to provide input on process improvements\nto increase production while maintaining quality standards.\n\n•\n \nLupin Limited\n \nVadodara, India\n\nProcess Engineer\n \n08/2016 to 11/2017\n\n◦\n \nTechnology Transfer Documentation\n: Led technology transfer documentation efforts, including volume calculations,\nstandard operating procedure (SOP) development, TRT calculation, capacity calculations, utility calculations, feasibility\nanalysis, and PFD creation/modification.\n\n◦\n \nPlant Unit Operation\n: Managed day-to-day operations of various plant units, including distillation, evaporator,\ncentrifuge, and dryer.\n\n◦\n \nInvestment Analysis and Planning\n: Conducted cost-benefit analyses and planned for new equipment and plant\nexpansions.\n\n◦\n \nConstructive Input and Reporting\n: Provided regular, constructive input to plant manager and operations lead on\nareas for improvement, and reported on progress and performance.Certifications\n\n•\n \nEngineer in Training (EIT)\n: PEGNL, Newfoundland, Canada 06/21\n\n•\n \nFirst Aid at Work\n: Green World Group 02/21\n\n•\n \nISO 45001:2018 Internal Auditor Awareness\n: Green World Group 02/21\n\n•\n \nDisaster Management with Advanced Emergency Response Principles\n \n: CPD Standards Office 02/21\n\n•\n \nEssential Fire and Safety Principles\n: Green World Group 02/21\n\n•\n \nGMP-Good Manufacturing Practices\n: Udemy\n\n•\n \nLean Six Sigma\n: Project Management Institute (PIMA) 05/21`;
+// extractedText = String.raw`Niravbhai Pandya\n \nEmail: niravpandya411@gmail.com\nLocation:Ontario, Canada\n \nMobile:\n \n709-687-4545\nE.I.T. (Engineer In Training)\n \nPEGNL Member\nLinkedIn: linkedin.com/in/nirav-pandya25\n\nEducation\n\n•\n \nMemorial University of Newfoundland\n \nSt. Johns, Canada\n\nMaster of Science - Oil and Gas Engineering\n \n01/2019 to 08/2020\n\nCourses:\n \nProduction, Safety Engineering, Phase Behavior, Reservoir, Drilling, Natural Gas, Reliability Engineering, Engineering\nEconomics\n\n•\n \nGujarat Technological University\n \nGujarat, India\n\nBachelor of Engineering - Process Engineering\n \n07/2012 to 06/2016\n\nCourses:\n \nMass Transfer, Chemical Reaction, Production Planning, Engineering Drawing/Graphics, Thermodynamics, Advance Safety,\nEngineering Planning and Execution\n\nSkills Summary\n\n•\n \nSoft Skill\n:\n \nLeadership, Public Speaking, Problem-Solving, Analytical Thinking, Cross Discipline Contribution and\nTeamwork, Competitive\n\n•\n \nTechnical Skills\n:\n \nProject Management, Project Planning, Project & Controls, Operations Management, SAP,\nAutoCAD/CAD, HAZOP Studies, P&ID Preparation and Modifications, ECLIPESE, KAPPA PVT Simulation, CMG\nSoftware, SAP & Single View Programming, Six Sigma, KPI, Process Improvement, Production, MATLAB\n\nExperience\n\n•\n \nInmarsat\n \nSt. Johns, NL\n\nBilling Dispute Analyst\n \n09/2021 to Present\n\n◦\n \nBilling Disputes Resolution\n: Investigating and resolving complex billing disputes through thorough research and\nanalysis of customer records.\n\n◦\n \nPost-Resolution Checks\n: Conducting post-resolution checks to ensure accuracy and customer satisfaction.\n\n◦\n \nSAP Utilization\n: UUtilizing SAP to summarize and simplify complex data for senior management and presenting\neffective solutions.\n\n◦\n \nTrend Analysis\n: Identifying and analyzing recurring billing errors through trend analysis, in order to implement\npreventative measures.\n\n•\n \nBurger King\n \nSt. Johns, NL\n\nAssistant Manager\n \n07/2020 to 08/2021\n\n◦\n \nPlanning Tasks & Scheduling\n: Managed daily operations and ensured smooth functioning of the store by efficiently\nplanning tasks and scheduling employees.\n\n◦\n \nPerformance Reviews\n: Improved employee performance by conducting regular performance evaluations, identifying\nareas of improvement and implementing incentives and promotions.\n\n◦\n \nSafety and Best Food Handling Practices\n: Ensured compliance with government and corporate guidelines for food\nsafety and handling practices to ensure maximum customer satisfaction and a safe work environment.\n\n•\n \nGujarat Fluorochemicals Limited\n \nBharuch, India\n\nProduction Engineer\n \n11/2017 to 05/2018\n\n◦\n \nAnalysis and Prevention\n: Conducted root cause analysis to identify and implement effective and long-term corrective\nactions, and documented faults for future prevention.\n\n◦\n \nPlant Operation and Reporting\n: Troubleshooted and resolved day-to-day operational issues and compiled monthly\nreports for senior management review.\n\n◦\n \nHAZOP Studies and Safe Work Planning\n: Actively participated in regular plant-wide HAZOP studies and\ndeveloped, implemented and distributed safe work procedures for technicians and workers.\n\n◦\n \nCross Discipline Collaboration\n: Collaborated with cross-functional teams to provide input on process improvements\nto increase production while maintaining quality standards.\n\n•\n \nLupin Limited\n \nVadodara, India\n\nProcess Engineer\n \n08/2016 to 11/2017\n\n◦\n \nTechnology Transfer Documentation\n: Led technology transfer documentation efforts, including volume calculations,\nstandard operating procedure (SOP) development, TRT calculation, capacity calculations, utility calculations, feasibility\nanalysis, and PFD creation/modification.\n\n◦\n \nPlant Unit Operation\n: Managed day-to-day operations of various plant units, including distillation, evaporator,\ncentrifuge, and dryer.\n\n◦\n \nInvestment Analysis and Planning\n: Conducted cost-benefit analyses and planned for new equipment and plant\nexpansions.\n\n◦\n \nConstructive Input and Reporting\n: Provided regular, constructive input to plant manager and operations lead on\nareas for improvement, and reported on progress and performance.Certifications\n\n•\n \nEngineer in Training (EIT)\n: PEGNL, Newfoundland, Canada 06/21\n\n•\n \nFirst Aid at Work\n: Green World Group 02/21\n\n•\n \nISO 45001:2018 Internal Auditor Awareness\n: Green World Group 02/21\n\n•\n \nDisaster Management with Advanced Emergency Response Principles\n \n: CPD Standards Office 02/21\n\n•\n \nEssential Fire and Safety Principles\n: Green World Group 02/21\n\n•\n \nGMP-Good Manufacturing Practices\n: Udemy\n\n•\n \nLean Six Sigma\n: Project Management Institute (PIMA) 05/21`;
 
-console.log(extractedText)
-testingResumeScore = new resumechecker(extractedText)
-testingResumeScore.getFormattingScore()
-testingResumeScore.getFillerScore()
-testingResumeScore.getBrevityScore()
-testingResumeScore.getVocabScore()
+// testingResumeScore = new resumechecker(extractedText)
 
+// totalScoreReceived = testingResumeScore.getResult()
 
-
-totalScoreReceived = testingResumeScore.getScore()
-
-console.log(totalScoreReceived)
-
-feedBackReceived = testingResumeScore.getFeedback()
-
-
-console.log(feedBackReceived)
+// console.log(totalScoreReceived[0])
+// console.log(totalScoreReceived[1])
 
 
           
