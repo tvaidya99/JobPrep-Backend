@@ -9,7 +9,7 @@ module.exports = class resumechecker {
 
     constructor(extractedText) {
         this.extractedText = extractedText
-        this.feedBack = { Formatting: { Success: [], Fail: [], Score: [] }, Vocabulary: { Success: [], Fail: [], Score: [] }, Brevity: { Success: [], Fail: [], Score: [] }, FillerWords: { Success: [], Fail: [], Score: [] }, TotalScore: 0 }
+        this.feedBack = { Feedback: {Formatting: { Success: [], Fail: [], Score: [] }, Vocabulary: { Success: [], Fail: [], Score: [] }, Brevity: { Success: [], Fail: [], Score: [] }, FillerWords: { Success: [], Fail: [], Score: [] }}, TotalScore: 0 }
         this.totalScore = 0
 
     }; // Constructor takes in the extracted text from the pdf
@@ -23,38 +23,38 @@ module.exports = class resumechecker {
     updateFeedback(section, success, fail, score) {
         if (section == "Formatting") {
             for (let i = 0; i < success.length; i++) {
-                this.feedBack.Formatting.Success.push(success[i])
+                this.feedBack.Feedback.Formatting.Success.push(success[i])
             }
             for (let i = 0; i < fail.length; i++) {
-                this.feedBack.Formatting.Fail.push(fail[i])
+                this.feedBack.Feedback.Formatting.Fail.push(fail[i])
             }
-            this.feedBack.Formatting.Score.push(score)
+            this.feedBack.Feedback.Formatting.Score.push(score)
         } else if (section == "Vocabulary") {
             for (let i = 0; i < success.length; i++) {
-                this.feedBack.Vocabulary.Success.push(success[i])
+                this.feedBack.Feedback.Vocabulary.Success.push(success[i])
             }
             for (let i = 0; i < fail.length; i++) {
-                this.feedBack.Vocabulary.Fail.push(fail[i])
+                this.feedBack.Feedback.Vocabulary.Fail.push(fail[i])
             }
-            this.feedBack.Vocabulary.Score.push(score)
+            this.feedBack.Feedback.Vocabulary.Score.push(score)
         }
         else if (section == "Brevity") {
             for (let i = 0; i < success.length; i++) {
-                this.feedBack.Brevity.Success.push(success[i])
+                this.feedBack.Feedback.Brevity.Success.push(success[i])
             }
             for (let i = 0; i < fail.length; i++) {
-                this.feedBack.Brevity.Fail.push(fail[i])
+                this.feedBac.Feedback.Brevity.Fail.push(fail[i])
             }
-            this.feedBack.Brevity.Score.push(score)
+            this.feedBack.Feedback.Brevity.Score.push(score)
         }
         else if (section == "FillerWords") {
             for (let i = 0; i < success.length; i++) {
-                this.feedBack.FillerWords.Success.push(success[i])
+                this.feedBack.Feedback.FillerWords.Success.push(success[i])
             }
             for (let i = 0; i < fail.length; i++) {
-                this.feedBack.FillerWords.Fail.push(fail[i])
+                this.feedBack.Feedback.FillerWords.Fail.push(fail[i])
             }
-            this.feedBack.FillerWords.Score.push(score)
+            this.feedBack.Feedback.FillerWords.Score.push(score)
         }
     }
 
