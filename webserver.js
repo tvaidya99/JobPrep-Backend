@@ -1,7 +1,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 const pdfjsLib = require('pdfjs-dist');
-const resumechecker = require('./ResumeChecker.js');
+const resumechecker = require('./resumechecker.js');
 
 const server = http.createServer();
 const wss = new WebSocket.Server({ server });
