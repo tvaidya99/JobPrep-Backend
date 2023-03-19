@@ -12,7 +12,7 @@ class resumechecker {
  
     constructor (extractedText) {
         this.extractedText = extractedText
-        this.feedBack = {Formatting: {Success: [], Fail: [], Score: []}, Vocabulary: {Success: [], Fail: [], Score: []}, Brevity: {Success: [], Fail: [], Score: []}, FillerWords: {Success: [], Fail: [], Score: []}}     
+        this.feedBack = {Formatting: {Success: [], Fail: [], Score: []}, Vocabulary: {Success: [], Fail: [], Score: []}, Brevity: {Success: [], Fail: [], Score: []}, FillerWords: {Success: [], Fail: [], Score: []}, TotalScore: 0}     
         this.totalScore = 0
            
     } ; // Constructor takes in the extracted text from the pdf
@@ -66,6 +66,7 @@ class resumechecker {
         this.getVocabScore()
         this.getBrevityScore()
         this.getFillerScore()
+
         return [this.feedBack, this.totalScore]
     }
 

@@ -1,6 +1,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 const pdfjsLib = require('pdfjs-dist');
+const resume_checker = require('./ResumeChecker.js');
 
 const server = http.createServer();
 const wss = new WebSocket.Server({ server });
@@ -28,6 +29,9 @@ wss.on('connection', (socket) => {
         const pageText = content.items.map(item => item.str).join('\n');
         extractedText += pageText;
       }
+      resumeScan = new resume_checker(extractedText);
+      results = resumeScan.getResult();
+
 
       if (data.sendBack) {
         // Send the extracted text back to the client
@@ -44,3 +48,12 @@ wss.on('connection', (socket) => {
 server.listen(8080, () => {
   console.log('Server started on port 8080');
 });
+
+// Specification for the ResumeChecker class
+// Path: ResumeChecker.js
+// ResumeChecker class takes the extracted text from the resume and checks it against a list of keywords and algorithm 
+// to determine the score and output. 
+// the class has getresult() function which returns the result of the resume check.
+// the Result is an object with the following properties:
+// 0. score: the score of the resume
+// 1. keywords: the keywords that were found in the resume
