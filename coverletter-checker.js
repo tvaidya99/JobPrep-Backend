@@ -2,7 +2,7 @@
 // This will take the extracted text and check the cover letter against a list of keywords and algorithm to determine the score and output.
 // The class has getResult() function which returns the result of the cover letter check
 
-var dataBase = require("./data.json");
+var dataBase = require("./data/parse-data.json");
 
 module.exports = class coverLetterChecker {
   constructor(extractedText) {
@@ -23,7 +23,7 @@ module.exports = class coverLetterChecker {
     return this.totalScore;
   }
 
-  getCoverLetterResult() {
+  getResult() {
     this.getCoverLetterFormatting();
     this.getCoverLetterVocabulary();
     this.getCoverLetterBrevity();
@@ -96,8 +96,8 @@ module.exports = class coverLetterChecker {
         vocabularyScore += 3;
         this.feedBack.Feedback.Vocabulary.Success.push(
           "The word " +
-            dataBase.strongActionWords[i] +
-            " is present in the cover letter"
+          dataBase.strongActionWords[i] +
+          " is present in the cover letter"
         );
       }
     }
@@ -134,8 +134,8 @@ module.exports = class coverLetterChecker {
         vocabularyScore -= 1;
         this.feedBack.Feedback.Vocabulary.Fail.push(
           "This complex buzzword " +
-            dataBase.complexBuzzwords[i] +
-            " is used in the cover letter"
+          dataBase.complexBuzzwords[i] +
+          " is used in the cover letter"
         );
       }
     }
@@ -144,8 +144,8 @@ module.exports = class coverLetterChecker {
     this.updateScore(vocabularyScore);
     this.feedBack.Feedback.Vocabulary.Score.push(vocabularyScore);
   }
-  // Brevity Check
 
+  // Brevity Check
   getCoverLetterBrevity() {
     let brevityScore = 25;
 
@@ -153,8 +153,9 @@ module.exports = class coverLetterChecker {
     const paragraphRegex =
       /Dear\s+([a-zA-Z\s]+),?[\r\n\s]+([\s\S]*?)[\r\n\s]*(?:Sincerely|Best regards|Best|Kind regards|Regards|Yours truly|Yours faithfully|Respectfully yours|Cordially|Warm regards|Warmly|Thank you|Thanks)[,.\s]*(?:\r\n|\r|\n)*[\r\n\s]+([a-zA-Z\s]+)/;
     const paragraph = this.extractedText.match(paragraphRegex);
-    const paragraphArray = paragraph[2].split("\n");
+    let paragraphArray;
     if (paragraph) {
+      paragraphArray = paragraph[2].split("\n");
       if (paragraphArray.length > 5) {
         this.feedBack.Feedback.Brevity.Fail.push(
           "The cover letter has more than 5 paragraphs"
@@ -167,7 +168,7 @@ module.exports = class coverLetterChecker {
       }
     } else {
       this.feedBack.Feedback.Brevity.Fail.push(
-        "The cover letter is not formatted correctly - no parahraphs detected"
+        "The cover letter is not formatted correctly - no paragraphs detected"
       );
       brevityScore -= 10;
     }
@@ -192,8 +193,8 @@ module.exports = class coverLetterChecker {
         }
         this.feedBack.Feedback.Brevity.Fail.push(
           "The cover letter has " +
-            overLimitPara +
-            " paragraphs with more than 100 words"
+          overLimitPara +
+          " paragraphs with more than 100 words"
         );
         brevityScore -= overLimitPara * 2;
       } else {
@@ -227,14 +228,13 @@ module.exports = class coverLetterChecker {
 }
 
 // Test for the the class and the functions
+// const textCover = String.raw`Dear Hiring Manager,\n\nI am Nirav Pandya and I am applying for the Data Analyst position at your company. I am excited about the opportunity to work with a team that is passionate about utilizing data to drive business decisions.\n\nI have a strong background in statistics and data analysis, with experience in both academic and professional settings. I am proficient in data analysis tools such as Excel, Python, and SQL, and have experience working with large datasets.\n\nI am confident that my skills and experience make me a strong candidate for this position. Thank you for considering my application. I look forward to the opportunity to discuss my qualifications further.\n\nSincerely,\nNirav Pandya\nEmail: niravpandya411@gmail.com\nPhone: 555-555-5555`;
 
-const textCover = String.raw`Dear Hiring Manager,\n\nI am Nirav Pandya and I am applying for the Data Analyst position at your company. I am excited about the opportunity to work with a team that is passionate about utilizing data to drive business decisions.\n\nI have a strong background in statistics and data analysis, with experience in both academic and professional settings. I am proficient in data analysis tools such as Excel, Python, and SQL, and have experience working with large datasets.\n\nI am confident that my skills and experience make me a strong candidate for this position. Thank you for considering my application. I look forward to the opportunity to discuss my qualifications further.\n\nSincerely,\nNirav Pandya\nEmail: niravpandya411@gmail.com\nPhone: 555-555-5555`;
+// const coverLetter = new coverLetterChecker(textCover);
 
-const coverLetter = new coverLetterChecker(textCover);
+// coverLetterResult = coverLetter.getCoverLetterResult();
 
-coverLetterResult = coverLetter.getCoverLetterResult();
-
-console.log(coverLetterResult.TotalScore);
-console.log(coverLetterResult.Feedback);
+// console.log(coverLetterResult.TotalScore);
+// console.log(coverLetterResult.Feedback);
 
 // Output

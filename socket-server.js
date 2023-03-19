@@ -1,7 +1,8 @@
 const http = require('http');
 const WebSocket = require('ws');
 const pdfjsLib = require('pdfjs-dist');
-const resumechecker = require('./resume-checker.js');
+const resumeChecker = require('./resume-checker.js');
+const coverLetterChecker = require('./coverletter-checker');
 
 const server = http.createServer();
 const wss = new WebSocket.Server({ server });
@@ -14,23 +15,38 @@ wss.on('connection', (socket) => {
 
     // Check if a file was sent
     if (data) {
-      console.log('Received file from client!');
+      console.log('Received file/s from client!');
 
-      // Convert the file buffer back to PDF
-      const file = Uint8Array.from(Buffer.from(data.resume, 'base64'));
-      const pdf = await pdfjsLib.getDocument(file).promise;
+      // Extract string text from base64 file
+      async function getExtractedText(fileBase64) {
+        // Convert the file buffer back to PDF
+        const file = Uint8Array.from(Buffer.from(fileBase64, 'base64'));
+        const pdf = await pdfjsLib.getDocument(file).promise;
 
-      // Extract the text from each page of the PDF
-      const numPages = pdf.numPages;
-      let extractedText = '';
-      for (let i = 1; i <= numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const pageText = content.items.map(item => item.str).join('\n');
-        extractedText += pageText;
+        // Extract the text from each page of the PDF
+        const numPages = pdf.numPages;
+        let extractedText = '';
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items.map(item => item.str).join('\n');
+          extractedText += pageText;
+        }
+        return extractedText;
       }
-      resumeScan = new resumechecker(extractedText.toString());
-      let results = resumeScan.getResult();
+      let results = {};
+      
+      // parse resume
+      if (data.resume) {
+        resumeScan = new resumeChecker((await getExtractedText(data.resume)));
+        results.resume = resumeScan.getResult();
+      }
+
+      // parse cover letter
+      if (data.cover_letter) {
+        coverLetterScan = new coverLetterChecker((await getExtractedText(data.cover_letter)));
+        results.cover_letter = coverLetterScan.getResult();
+      }
 
       // Send the extracted text back to the client
       socket.send(JSON.stringify(results));

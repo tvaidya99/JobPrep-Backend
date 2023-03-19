@@ -36,8 +36,6 @@ app.listen(8090, () => {
   console.log('API is running on port 8090');
 });
 
-
-
 // Specification for the API server
 
 // To retrive data use the following endpoints:

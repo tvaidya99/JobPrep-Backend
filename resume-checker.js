@@ -3,7 +3,7 @@
 // Output: score
 // Feedback: feedback on each section
 
-var dataBase = require('./data/resume-data.json');
+var dataBase = require('./data/parse-data.json');
 
 module.exports = class resumechecker {
 
@@ -43,7 +43,7 @@ module.exports = class resumechecker {
                 this.feedBack.Feedback.Brevity.Success.push(success[i])
             }
             for (let i = 0; i < fail.length; i++) {
-                this.feedBac.Feedback.Brevity.Fail.push(fail[i])
+                this.feedBack.Feedback.Brevity.Fail.push(fail[i])
             }
             this.feedBack.Feedback.Brevity.Score.push(score)
         }
