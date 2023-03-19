@@ -8,7 +8,8 @@ const WebSocket = require('ws');
 const pdfjsLib = require('pdfjs-dist');
 const { escape } = require('querystring');
 
-class resumechecker {
+
+module.exports = class resumechecker {
  
     constructor (extractedText) {
         this.extractedText = extractedText
@@ -80,19 +81,19 @@ class resumechecker {
         // Check for email, phone number, and linkedin
         const emailRegex = /(?:[a-z0-9+!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/gi;
         const phoneRegex = /(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})/gi;
-        if (extractedText.match(emailRegex)) {
-            forMatSuc.push("Email Address is: " + extractedText.match(emailRegex))
+        if (this.extractedText.match(emailRegex)) {
+            forMatSuc.push("Email Address is: " + this.extractedText.match(emailRegex))
         } else {
             forMatFail.push("Email Address is missing")
             forMatScore -= 5  // Added 1 for Date
         }
-        if (extractedText.match(phoneRegex)) {
-            forMatSuc.push("Phone Number is: " + extractedText.match(phoneRegex))
+        if (this.extractedText.match(phoneRegex)) {
+            forMatSuc.push("Phone Number is: " + this.extractedText.match(phoneRegex))
         } else {
             forMatFail.push("Phone Number is missing")
             forMatScore -= 5 // Added 1 for Date
         }
-        if (extractedText.includes("LinkedIn")) {
+        if (this.extractedText.includes("LinkedIn")) {
             forMatSuc.push("LinkedIn is present")
         } else {
             forMatFail.push("LinkedIn is missing")
@@ -116,7 +117,7 @@ class resumechecker {
             "\\nContinuing Education\\n"]
             let educPresent = false
         for (let i = 0; i < patternEduc.length; i++) {
-            if (extractedText.includes(patternEduc[i])) {
+            if (this.extractedText.includes(patternEduc[i])) {
                 educPresent = true
                 break
             }   
@@ -143,7 +144,7 @@ class resumechecker {
         ]
         let expPresent = false
         for (let i = 0; i < patternExp.length; i++) {
-            if (extractedText.includes(patternExp[i])) {
+            if (this.extractedText.includes(patternExp[i])) {
                 expPresent = true
                 break
             }
@@ -176,7 +177,7 @@ class resumechecker {
           ]
         let skillsPresent = false
         for (let i = 0; i < patternSkills.length; i++) {
-            if (extractedText.includes(patternSkills[i])) {
+            if (this.extractedText.includes(patternSkills[i])) {
                 skillsPresent = true
                 break
             }
@@ -223,7 +224,7 @@ class resumechecker {
         ]
         let extraActPresent = false
         for (let i = 0; i < patternExtraAct.length; i++) {
-            if (extractedText.includes(patternExtraAct[i])) {
+            if (this.extractedText.includes(patternExtraAct[i])) {
                 extraActPresent = true
                 break
             }
@@ -379,7 +380,7 @@ class resumechecker {
         // Check for strong action words
         let maxStrong = 0
         for (let i = 0; i < strongActionWords.length; i++ && maxStrong != 8) {
-            if (extractedText.includes(strongActionWords[i])) {
+            if (this.extractedText.includes(strongActionWords[i])) {
                 maxStrong += 1
             }
         }
@@ -393,7 +394,7 @@ class resumechecker {
         // Check for buzzwords
         const maxBuzz = 7
         for (let i = 0; i < buzzWords.length; i++ && maxBuzz > 0) {
-            if (extractedText.includes(buzzWords[i])) {
+            if (this.extractedText.includes(buzzWords[i])) {
                 maxBuzz -= 1
                 vocabScore -= 1
             }
@@ -410,7 +411,7 @@ class resumechecker {
         // Check for complex buzzwords
         const maxComplexBuzz = 5
         for (let i = 0; i < complexBuzzwords.length; i++ && maxComplexBuzz > 0) {
-            if (extractedText.includes(complexBuzzwords[i])) {
+            if (this.extractedText.includes(complexBuzzwords[i])) {
                 maxComplexBuzz -= 1
                 vocabScore -= 1
             }
@@ -436,7 +437,7 @@ class resumechecker {
         let brevityFail = []
 
         // Check for word count
-        const words = extractedText.split(" ")
+        const words = this.extractedText.split(" ")
           
 
         if (words.length > 400) {
@@ -447,7 +448,7 @@ class resumechecker {
         }
 
         // check each bullet point in the extrected text for word count the
-        const bulletPoints = extractedText.split(/-|\+|=|•|\*/)
+        const bulletPoints = this.extractedText.split(/-|\+|=|•|\*/)
         const maxLengthBullet = 30
         let maxpoint = 5
         for (let i = 0; i < bulletPoints.length; i++ && maxpoint > 0) {
@@ -471,7 +472,7 @@ class resumechecker {
         }
 
         // paragraph presense check
-        const paragraphs = extractedText.split(/(\r\n|\n\n|\r|\p)/gm)
+        const paragraphs = this.extractedText.split(/(\r\n|\n\n|\r|\p)/gm)
         const minParagraphs = 15 // 15 paragraphs
         if (paragraphs.length > minParagraphs) {
             brevityFail.push("Presense of too many paragraphs")
@@ -496,7 +497,7 @@ class resumechecker {
         let fillerWordsUsed = []
         let maxFiller = 5
         for (let i = 0; i < fillerWords.length; i++) {
-            if (extractedText.includes(fillerWords[i])) {
+            if (this.extractedText.includes(fillerWords[i])) {
                 fillerWordsUsed.push(fillerWords[i])
                 maxFiller -= 1
             }

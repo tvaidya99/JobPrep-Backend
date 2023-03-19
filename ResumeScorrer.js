@@ -1,7 +1,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 const pdfjsLib = require('pdfjs-dist');
-const resume_checker = require('./ResumeChecker.js');
+const resumechecker = require('./ResumeChecker.js');
 
 const server = http.createServer();
 const wss = new WebSocket.Server({ server });
@@ -29,14 +29,11 @@ wss.on('connection', (socket) => {
         const pageText = content.items.map(item => item.str).join('\n');
         extractedText += pageText;
       }
-      resumeScan = new resume_checker(extractedText);
-      results = resumeScan.getResult();
+      resumeScan = new resumechecker(extractedText.toString());
+      let results = resumeScan.getResult();
 
-
-      if (data.sendBack) {
-        // Send the extracted text back to the client
-        socket.send(JSON.stringify(results));
-      }
+      // Send the extracted text back to the client
+      socket.send(JSON.stringify(results));
     }
   });
 
