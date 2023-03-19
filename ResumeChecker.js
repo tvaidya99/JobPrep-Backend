@@ -66,8 +66,9 @@ class resumechecker {
         this.getVocabScore()
         this.getBrevityScore()
         this.getFillerScore()
+        this.feedBack.TotalScore = this.totalScore
 
-        return [this.feedBack, this.totalScore]
+        return this.feedBack
     }
 
 
@@ -532,8 +533,7 @@ class resumechecker {
 
 // totalScoreReceived = testingResumeScore.getResult()
 
-// console.log(totalScoreReceived[0])
-// console.log(totalScoreReceived[1])
+// console.log(totalScoreReceived.TotalScore)
 
 
           

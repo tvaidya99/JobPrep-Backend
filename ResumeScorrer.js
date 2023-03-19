@@ -35,7 +35,7 @@ wss.on('connection', (socket) => {
 
       if (data.sendBack) {
         // Send the extracted text back to the client
-        socket.send(JSON.stringify(extractedText));
+        socket.send(JSON.stringify(results));
       }
     }
   });
@@ -54,6 +54,6 @@ server.listen(8080, () => {
 // ResumeChecker class takes the extracted text from the resume and checks it against a list of keywords and algorithm 
 // to determine the score and output. 
 // the class has getresult() function which returns the result of the resume check.
-// the Result is an object with the following properties:
-// 0. score: the score of the resume
-// 1. keywords: the keywords that were found in the resume
+// the Result is an  JSON Object with the following properties:
+// result.TotalScore: the total score of the resume
+// Structure of JSON Object: [Formatting: {Success: [], Fail: [], Score: []}, Vocabulary: {Success: [], Fail: [], Score: []}, Brevity: {Success: [], Fail: [], Score: []}, FillerWords: {Success: [], Fail: [], Score: []}, TotalScore: 0}]
