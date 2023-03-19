@@ -3,9 +3,6 @@
 // Output: score
 // Feedback: feedback on each section
 
-const http = require('http');
-const WebSocket = require('ws');
-const pdfjsLib = require('pdfjs-dist');
 const { escape } = require('querystring');
 var  dataBase = require('./data.json');
 
