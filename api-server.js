@@ -1,35 +1,34 @@
 const express = require('express');
+const templates = require('./data/templates.json');
 const app = express();
 
+/*
+Only for dev purposes
+*/
+const cors = require('cors');
+const corsOptions = {
+  origin: '*',
+  methods: ['POST', 'GET'],
+  allowedHeaders: ['Content-Type']
+}
+app.use(cors(corsOptions));
+
 // ATS friendly resume templates endpoint
-app.get('/ats-friendly-resume-templates', (req, res) => {
-  // Retrieve ATS friendly resume templates from database or external source
-  const atsFriendlyResumeTemplates = [
-    { name: 'OverLeaf', url: 'https://www.overleaf.com/gallery/tagged/cv' },
-    { name: 'LaTex Templates', url: 'https://www.latextemplates.com/cat/curricula-vitae' },
-    { name: 'Hiration', url: 'https://www.hiration.com/templates/' },
-    { name: 'Novoresume', url: 'https://novoresume.com/resume-templates' },
-    { name: 'Zety', url: 'https://zety.com/blog/best-resume-templates' },
-    { name: 'Resume Genius', url: 'https://resumegenius.com/resume-templates' },
-  ];
+app.get('/templates', (req, res) => {
+  try {
+    // Retrieve ATS friendly resume templates from database or external source
+    const atsFriendlyResumeTemplates = templates['resume-templates'];
 
-  // Return ATS friendly resume templates as JSON response
-  res.json({ heading: 'ATS Friendly Resume Templates', resources: atsFriendlyResumeTemplates });
-});
+    // Retrieve cover letter helpers from database or external source
+    const coverLetterHelpers = templates['cover-letter-templates'];
 
-// Cover letter helpers endpoint
-app.get('/cover-letter-helpers', (req, res) => {
-  // Retrieve cover letter helpers from database or external source
-  const coverLetterHelpers = [
-    { name: 'The Balance Career', url: 'https://www.thebalancecareers.com/free-cover-letter-examples-and-writing-tips-2060208' },
-    { name: 'Indeed', url: 'https://www.indeed.com/career-advice/cover-letter-samples' },
-    { name: 'Monster', url: 'https://www.monster.com/career-advice/article/cover-letter-examples' },
-    { name: 'Zety', url: 'https://zety.com/blog/cover-letter-examples' },
-    { name: 'Novoresume', url: 'https://novoresume.com/cover-letter-examples' },
-  ];
-
-  // Return cover letter helpers as JSON response
-  res.json({ heading: 'Cover Letter Helpers', resources: coverLetterHelpers });
+    // Return ATS friendly resume templates as JSON response
+    res.json(
+      [{ heading: 'ATS Friendly Resume Templates', resources: atsFriendlyResumeTemplates },
+      { heading: 'ATS Friendly Cover Letter Templates', resources: coverLetterHelpers }]);
+  } catch (err) {
+    res.status(500);
+  }
 });
 
 // Start the server
@@ -47,7 +46,7 @@ app.listen(8090, () => {
 
 // The API server should return the following JSON response:
 // {
-//   "heading": "Cover Letter Helpers",
+//   "heading": "Cover Letter Templates",
 //   "resources": [
 //     {
 //       "name": "How to Write a Cover Letter",

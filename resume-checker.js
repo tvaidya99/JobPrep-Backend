@@ -3,7 +3,7 @@
 // Output: score
 // Feedback: feedback on each section
 
-var dataBase = require('./data.json');
+var dataBase = require('./data/resume-data.json');
 
 module.exports = class resumechecker {
 

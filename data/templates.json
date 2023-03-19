@@ -1,0 +1,50 @@
+{
+    "resume-templates": [
+        {
+            "name": "OverLeaf",
+            "url": "https://www.overleaf.com/gallery/tagged/cv"
+        },
+        {
+            "name": "LaTex Templates",
+            "url": "https://www.latextemplates.com/cat/curricula-vitae"
+        },
+        {
+            "name": "Hiration",
+            "url": "https://www.hiration.com/templates/"
+        },
+        {
+            "name": "Novoresume",
+            "url": "https://novoresume.com/resume-templates"
+        },
+        {
+            "name": "Zety",
+            "url": "https://zety.com/blog/best-resume-templates"
+        },
+        {
+            "name": "Resume Genius",
+            "url": "https://resumegenius.com/resume-templates"
+        }
+    ],
+    "cover-letter-templates": [
+        {
+            "name": "The Balance Career",
+            "url": "https://www.thebalancecareers.com/free-cover-letter-examples-and-writing-tips-2060208"
+        },
+        {
+            "name": "Indeed",
+            "url": "https://www.indeed.com/career-advice/cover-letter-samples"
+        },
+        {
+            "name": "Monster",
+            "url": "https://www.monster.com/career-advice/article/cover-letter-examples"
+        },
+        {
+            "name": "Zety",
+            "url": "https://zety.com/blog/cover-letter-examples"
+        },
+        {
+            "name": "Novoresume",
+            "url": "https://novoresume.com/cover-letter-examples"
+        }
+    ]
+}
