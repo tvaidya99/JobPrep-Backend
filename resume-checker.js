@@ -3,19 +3,16 @@
 // Output: score
 // Feedback: feedback on each section
 
-const { escape } = require('querystring');
-var  dataBase = require('./data.json');
-
-
+var dataBase = require('./data.json');
 
 module.exports = class resumechecker {
- 
-    constructor (extractedText) {
+
+    constructor(extractedText) {
         this.extractedText = extractedText
-        this.feedBack = {Formatting: {Success: [], Fail: [], Score: []}, Vocabulary: {Success: [], Fail: [], Score: []}, Brevity: {Success: [], Fail: [], Score: []}, FillerWords: {Success: [], Fail: [], Score: []}, TotalScore: 0}     
+        this.feedBack = { Formatting: { Success: [], Fail: [], Score: [] }, Vocabulary: { Success: [], Fail: [], Score: [] }, Brevity: { Success: [], Fail: [], Score: [] }, FillerWords: { Success: [], Fail: [], Score: [] }, TotalScore: 0 }
         this.totalScore = 0
-           
-    } ; // Constructor takes in the extracted text from the pdf
+
+    }; // Constructor takes in the extracted text from the pdf
 
 
     updateScore(score) {
@@ -59,7 +56,7 @@ module.exports = class resumechecker {
             }
             this.feedBack.FillerWords.Score.push(score)
         }
-    }   
+    }
 
     getResult() {
         this.getFormattingScore()
@@ -99,12 +96,12 @@ module.exports = class resumechecker {
             forMatScore -= 5 // Added 3 for Date
         }
         // Check for section headings and add to score
-            let educPresent = false
-        for (let i = 0; i <  dataBase.patternEduc.length; i++) {
+        let educPresent = false
+        for (let i = 0; i < dataBase.patternEduc.length; i++) {
             if (this.extractedText.includes(dataBase.patternEduc[i])) {
                 educPresent = true
                 break
-            }   
+            }
         }
         if (educPresent) {
             forMatSuc.push("Education is present")
@@ -114,7 +111,7 @@ module.exports = class resumechecker {
         }
 
         let expPresent = false
-        for (let i = 0; i <  dataBase.patternExp.length; i++) {
+        for (let i = 0; i < dataBase.patternExp.length; i++) {
             if (this.extractedText.includes(dataBase.patternExp[i])) {
                 expPresent = true
                 break
@@ -128,7 +125,7 @@ module.exports = class resumechecker {
         }
 
         let skillsPresent = false
-        for (let i = 0; i <  dataBase.patternSkills.length; i++) {
+        for (let i = 0; i < dataBase.patternSkills.length; i++) {
             if (this.extractedText.match(dataBase.patternSkills[i])) {
                 skillsPresent = true
                 break
@@ -141,7 +138,7 @@ module.exports = class resumechecker {
             forMatScore -= 4
         }
         let extraActPresent = false
-        for (let i = 0; i <  dataBase.patternExtraAct.length; i++) {
+        for (let i = 0; i < dataBase.patternExtraAct.length; i++) {
             if (this.extractedText.includes(dataBase.patternExtraAct[i])) {
                 extraActPresent = true
                 break
@@ -153,7 +150,7 @@ module.exports = class resumechecker {
             forMatFail.push("Extra Activities are missing")
             forMatScore -= 2
         }
-        
+
 
         // Check for Dates in the resume for foramting and and order
 
@@ -162,28 +159,28 @@ module.exports = class resumechecker {
         // let currentSectionName = "";
 
 
-    
+
         // for (let i = 0; i < extractedText.length; i++) {
         //     const section = extractedText[i].trim();
-          
+
         //     if (section.startsWith('\n') && section.endsWith('\n')) {
         //         // new section detected
         //         if (currentSectionName !== "") {
         //             // check dates order in previous section
         //             const dates = currentSectionText.match(/(\d{1,2}\s*(th|st|nd|rd)?\s*(of)?\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?(\s*\d{2,4})?|\d{4}|\d{2}-\d{2})/g);
-            
+
         //             const sortedDates = dates.map(date => {
         //                 const parsedDate = Date.parse(date);
         //                 return new Date(parsedDate);
         //             }).sort((a, b) => b - a);
-            
+
         //             for (let j = 0; j < sortedDates.length; j++) {
         //                 if (currentSectionText.indexOf(sortedDates[j].toLocaleDateString()) < currentSectionText.indexOf(sortedDates[j + 1].toLocaleDateString())) {
         //                     inOrder = false;
         //                     break;
         //                 }
         //             }
-            
+
         //             if (inOrder) {
         //                 formattingScore += 1;
         //                 feedback.push(`Dates in section "${currentSectionName}" are in chronological order.`); 
@@ -191,7 +188,7 @@ module.exports = class resumechecker {
         //                 feedback.push(`Dates in section "${currentSectionName}" are not in chronological order.`);
         //             }
         //         }
-            
+
         //         // start new section
         //         currentSectionName = section;
         //         currentSectionText = "";
@@ -201,24 +198,24 @@ module.exports = class resumechecker {
         //         currentSectionText += section + "\n";
         //     }
         // }
-        
+
         // // check dates order in the last section
         // const dates = currentSectionText.match(/(\d{1,2}\s*(th|st|nd|rd)?\s*(of)?\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?(\s*\d{2,4})?|\d{4}|\d{2}-\d{2})/g);
-        
+
         // const sortedDates = dates.map(date => {
         //     const parsedDate = Date.parse(date);
         //     return new Date(parsedDate);
         // }).sort((a, b) => b - a);
 
         // console.log(sortedDates)
-        
+
         // for (let j = 0; j < sortedDates.length - 1; j++) {
         //     if (currentSectionText.indexOf(sortedDates[j].toLocaleDateString()) < currentSectionText.indexOf(sortedDates[j + 1].toLocaleDateString())) {
         //         inOrder = false;
         //         break;
         //     }
         // }
-    
+
         // if (inOrder) {
         //     forMatSuc.push(`Dates in section "${currentSectionName}" are in chronological order.`);
         // } else {
@@ -237,7 +234,7 @@ module.exports = class resumechecker {
 
         // Check for strong action words
         let maxStrong = 0
-        for (let i = 0; i <  dataBase.strongActionWords.length; i++ && maxStrong != 8) {
+        for (let i = 0; i < dataBase.strongActionWords.length; i++ && maxStrong != 8) {
             if (this.extractedText.includes(dataBase.strongActionWords[i])) {
                 maxStrong += 1
             }
@@ -251,7 +248,7 @@ module.exports = class resumechecker {
         }
         // Check for buzzwords
         let maxBuzz = 7
-        for (let i = 0; i <  dataBase.buzzWords.length; i++ && maxBuzz > 0) {
+        for (let i = 0; i < dataBase.buzzWords.length; i++ && maxBuzz > 0) {
             if (this.extractedText.includes(dataBase.buzzWords[i])) {
                 maxBuzz -= 1
                 vocabScore -= 1
@@ -261,14 +258,13 @@ module.exports = class resumechecker {
         if (maxBuzz == 0) {
             vocabFail.push("Buzzwords are present")
         }
-        else
-        {
+        else {
             vocabSuc.push("Buzzwords are missing")
         }
 
         // Check for complex buzzwords
         const maxComplexBuzz = 5
-        for (let i = 0; i <  dataBase.complexBuzzwords.length; i++ && maxComplexBuzz > 0) {
+        for (let i = 0; i < dataBase.complexBuzzwords.length; i++ && maxComplexBuzz > 0) {
             if (this.extractedText.includes(dataBase.complexBuzzwords[i])) {
                 maxComplexBuzz -= 1
                 vocabScore -= 1
@@ -278,8 +274,7 @@ module.exports = class resumechecker {
         if (maxComplexBuzz == 0) {
             vocabFail.push("Complex Buzzwords are present")
         }
-        else
-        {
+        else {
             vocabSuc.push("Complex Buzzwords are missing")
         }
 
@@ -296,7 +291,7 @@ module.exports = class resumechecker {
 
         // Check for word count
         const words = this.extractedText.split(" ")
-          
+
 
         if (words.length > 400) {
             brevitySuc.push("Word Count is greater than 400")
@@ -359,14 +354,14 @@ module.exports = class resumechecker {
         // Check for filler words
         let fillerWordsUsed = []
         let maxFiller = 5
-        for (let i = 0; i <  dataBase.fillerWords.length; i++) {
+        for (let i = 0; i < dataBase.fillerWords.length; i++) {
             if (this.extractedText.includes(dataBase.fillerWords[i])) {
                 fillerWordsUsed.push(dataBase.fillerWords[i])
                 maxFiller -= 1
             }
         }
 
-        if (maxFiller == 0 &&  dataBase.fillerWords.length > 0) {
+        if (maxFiller == 0 && dataBase.fillerWords.length > 0) {
             fillerFail.push("Filler Words are present here is the list of words you can replace to increase your score: " + fillerWordsUsed)
             fillerScore -= 10
         }
@@ -400,7 +395,6 @@ module.exports = class resumechecker {
 // console.log(totalScoreReceived.TotalScore)
 
 
-          
 
-        
-        
+
+
