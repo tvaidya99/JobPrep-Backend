@@ -13,7 +13,7 @@ module.exports = class coverLetterChecker {
         Vocabulary: { success: [], fail: [], score: [] },
         Brevity: { success: [], fail: [], score: [] },
       },
-      TotalScore: 0,
+      Totalscore: 0,
     };
     this.totalScore = 0;
   } // Constructor takes in the extracted text from the pdf
@@ -27,7 +27,7 @@ module.exports = class coverLetterChecker {
     this.getCoverLetterFormatting();
     this.getCoverLetterVocabulary();
     this.getCoverLetterBrevity();
-    this.feedBack.TotalScore = this.totalScore;
+    this.feedBack.Totalscore = this.totalScore;
     return this.feedBack;
   }
 
