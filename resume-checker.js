@@ -66,7 +66,7 @@ module.exports = class resumechecker {
     this.getVocabScore();
     this.getBrevityScore();
     this.getFillerScore();
-    this.feedBack.TotalScore = this.totalScore;
+    this.feedBack.Totalscore = this.totalScore;
 
     return this.feedBack;
   }
