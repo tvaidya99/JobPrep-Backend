@@ -31,7 +31,7 @@
                 const fileBuffer = e.target.result;
                 const message = JSON.stringify({
                     sendBack: true,
-                    resume: _arrayBufferToBase64(fileBuffer)
+                    cover_letter: _arrayBufferToBase64(fileBuffer)
                 });
                 socket.send(message);
 

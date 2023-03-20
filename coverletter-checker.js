@@ -38,7 +38,8 @@ module.exports = class coverLetterChecker {
 
     // check for the date
     const dateRegex =
-      /^(0?[1-9]|[1-2][0-9]|3[0-1])\/(0?[1-9]|1[0-2])\/([1-9][0-9]{3})$|^(0?[1-9]|1[0-2])\/(0?[1-9]|[1-2][0-9]|3[0-1])\/([1-9][0-9]{3})$/;
+      /\b(?:\d{1,2}\s+)?(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s*\d{4}?\b/g;
+
     const date = this.extractedText.match(dateRegex);
     if (date) {
       this.feedBack.Feedback.Formatting.Success.push(
@@ -66,15 +67,16 @@ module.exports = class coverLetterChecker {
     }
 
     // Check for Name of the Recipient
-    const nameRegex = /Dear\s([a-zA-Z\s]+),/;
-    const name = this.extractedText.match(nameRegex);
-    if (name) {
+    const NAME_REGEX = /Dear\s(?:[a-zA-Z]+\s)+([a-zA-Z]+)/;
+    if (NAME_REGEX.test(this.extractedText)) {
+      const name = this.extractedText.match(NAME_REGEX);
+      const firstName = name[0].split(" ")[1];
       this.feedBack.Feedback.Formatting.Success.push(
-        "This letter is addressed to " + name[1]
+        "Cover Letter is addressed to " + firstName + " " + name[1]
       );
     } else {
-      this.feedBack.Feedback.Formatting.Fail.push(
-        "Name on Cover Letter is missing"
+      this.feedback.Feedback.Formatting.Fail.push(
+        "Formatting Error: Dear is not followed by a name"
       );
       formattingScore -= 10;
     }
@@ -96,8 +98,8 @@ module.exports = class coverLetterChecker {
         vocabularyScore += 3;
         this.feedBack.Feedback.Vocabulary.Success.push(
           "The word " +
-          dataBase.strongActionWords[i] +
-          " is present in the cover letter"
+            dataBase.strongActionWords[i] +
+            " is present in the cover letter"
         );
       }
     }
@@ -134,8 +136,8 @@ module.exports = class coverLetterChecker {
         vocabularyScore -= 1;
         this.feedBack.Feedback.Vocabulary.Fail.push(
           "This complex buzzword " +
-          dataBase.complexBuzzwords[i] +
-          " is used in the cover letter"
+            dataBase.complexBuzzwords[i] +
+            " is used in the cover letter"
         );
       }
     }
@@ -156,7 +158,7 @@ module.exports = class coverLetterChecker {
     let paragraphArray;
     if (paragraph) {
       paragraphArray = paragraph[2].split("\n");
-      if (paragraphArray.length > 5) {
+      if (paragraphArray.length > 30) {
         this.feedBack.Feedback.Brevity.Fail.push(
           "The cover letter has more than 5 paragraphs"
         );
@@ -193,8 +195,8 @@ module.exports = class coverLetterChecker {
         }
         this.feedBack.Feedback.Brevity.Fail.push(
           "The cover letter has " +
-          overLimitPara +
-          " paragraphs with more than 100 words"
+            overLimitPara +
+            " paragraphs with more than 100 words"
         );
         brevityScore -= overLimitPara * 2;
       } else {
@@ -225,7 +227,7 @@ module.exports = class coverLetterChecker {
     this.updateScore(brevityScore);
     this.feedBack.Feedback.Brevity.Score.push(brevityScore);
   }
-}
+};
 
 // Test for the the class and the functions
 // const textCover = String.raw`Dear Hiring Manager,\n\nI am Nirav Pandya and I am applying for the Data Analyst position at your company. I am excited about the opportunity to work with a team that is passionate about utilizing data to drive business decisions.\n\nI have a strong background in statistics and data analysis, with experience in both academic and professional settings. I am proficient in data analysis tools such as Excel, Python, and SQL, and have experience working with large datasets.\n\nI am confident that my skills and experience make me a strong candidate for this position. Thank you for considering my application. I look forward to the opportunity to discuss my qualifications further.\n\nSincerely,\nNirav Pandya\nEmail: niravpandya411@gmail.com\nPhone: 555-555-5555`;
