@@ -75,7 +75,7 @@ module.exports = class coverLetterChecker {
         "Cover Letter is addressed to " + firstName + " " + name[1]
       );
     } else {
-      this.feedback.Feedback.Formatting.fail.push(
+      this.feedBack.Feedback.Formatting.fail.push(
         "Formatting Error: Dear is not followed by a name"
       );
       formattingScore -= 10;
