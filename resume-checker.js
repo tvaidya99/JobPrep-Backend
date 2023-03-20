@@ -5,18 +5,24 @@
 
 var dataBase = require("./data/parse-data.json");
 
-module.exports = class resumechecker {
-  constructor(extractedText) {
+class resumechecker {
+  constructor(extractedText, jobDiscription) {
     this.extractedText = extractedText;
+    this.jobDiscription = jobDiscription;
     this.feedBack = {
       Feedback: {
         Formatting: { success: [], fail: [], score: 0 },
         Vocabulary: { success: [], fail: [], score: 0 },
         Brevity: { success: [], fail: [], score: 0 },
-        FillerWords: { success: [], fail: [], score: 0 },
+        FillerWords: { success: [], fail: [] },
       },
       Totalscore: 0,
+      matchFeedback: {
+        Skills: { success: [], fail: []},
+      },
+      matchRate: 0,
     };
+
     this.totalScore = 0;
   } // Constructor takes in the extracted text from the pdf
 
@@ -66,6 +72,9 @@ module.exports = class resumechecker {
     this.getVocabScore();
     this.getBrevityScore();
     this.getFillerScore();
+    if (this.jobDiscription) {
+      this.getMatchScore();
+    }
     this.feedBack.Totalscore = this.totalScore;
 
     return this.feedBack;
@@ -370,13 +379,11 @@ module.exports = class resumechecker {
     if (maxFiller == 0 && dataBase.fillerWords.length > 0) {
       fillerfail.push(
         "Filler Words are present here is the list of words you can replace to increase your score: " +
-          fillerWordsUsed.toString().replace(",",", ")
+          fillerWordsUsed.toString().replace(",", ", ")
       );
       fillerScore -= 10;
-    }
-    else
-    {
-        fillerSuc.push("Filler Words are not present");
+    } else {
+      fillerSuc.push("Filler Words are not present");
     }
     // now check for overuse of filler words for every 2 filer words over 10,  1 point is deducted
     let fillerLimit = 10;
@@ -392,12 +399,81 @@ module.exports = class resumechecker {
     this.updateScore(fillerScore);
     this.updateFeedback("FillerWords", fillerSuc, fillerfail, fillerScore);
   }
+
+  getMatchScore() {
+    let matchScore = 100;
+    let matchSuc = [];
+    let matchfail = [];
+
+    // Check for match
+    const keySkills = [];
+
+    const words = this.jobDiscription.toLowerCase().split(/[^a-z0-9]/);
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      if (dataBase.stopwords.includes(word) || word.length < 2) {
+        continue;
+      }
+      keySkills.push(word);
+    }
+
+    for (let i = 0; i < dataBase.stopwords; i++) {
+        if (dataBase.stopwords.includes(keySkills[i])) {
+          keySkills.pop(keySkills[i]);
+        }
+      }
+
+    let noMatches = 0;
+    let skillsInResume = [];
+    let skillsNotInResume = [];
+    for (let i = 0; i < keySkills.length; i++) {
+      if (this.extractedText.includes(keySkills[i])) {
+        noMatches += 1;
+        skillsInResume.push(keySkills[i]);
+      } else {
+        skillsNotInResume.push(keySkills[i]);
+      }
+    }
+
+    
+
+    let slicedSkills = skillsNotInResume.slice(4, 9);
+    let sliceedInResume = skillsInResume.slice(0, 9);
+
+
+    if (noMatches / keySkills.length > 0.15) {
+      matchSuc.push(
+        "Match is greater than 50% with the following skills: " +
+          sliceedInResume.toString().replace(",", ", ")
+      );
+    } else {
+      matchfail.push(
+        "Match is less than 50%, Add the following skills to increase your match: " +
+          slicedSkills.toString().replace(",", ", ")
+      );
+      matchScore -= (noMatches / keySkills.length) * 100;
+      matchScore = Math.round(matchScore);
+    }
+
+    // add the total to running total and append jason object for feedback with success and fail
+    this.feedBack.matchFeedback.Skills.success = matchSuc;
+    this.feedBack.matchFeedback.Skills.fail = matchfail;
+    this.feedBack.matchScore = matchScore;
+  }
 };
 
-// extractedText = String.raw`Niravbhai Pandya\n \nEmail: niravpandya411@gmail.com\nLocation:Ontario, Canada\n \nMobile:\n \n709-687-4545\nE.I.T. (Engineer In Training)\n \nPEGNL Member\nLinkedIn: linkedin.com/in/nirav-pandya25\n\nEducation\n\n•\n \nMemorial University of Newfoundland\n \nSt. Johns, Canada\n\nMaster of Science - Oil and Gas Engineering\n \n01/2019 to 08/2020\n\nCourses:\n \nProduction, Safety Engineering, Phase Behavior, Reservoir, Drilling, Natural Gas, Reliability Engineering, Engineering\nEconomics\n\n•\n \nGujarat Technological University\n \nGujarat, India\n\nBachelor of Engineering - Process Engineering\n \n07/2012 to 06/2016\n\nCourses:\n \nMass Transfer, Chemical Reaction, Production Planning, Engineering Drawing/Graphics, Thermodynamics, Advance Safety,\nEngineering Planning and Execution\n\nSkills Summary\n\n•\n \nSoft Skill\n:\n \nLeadership, Public Speaking, Problem-Solving, Analytical Thinking, Cross Discipline Contribution and\nTeamwork, Competitive\n\n•\n \nTechnical Skills\n:\n \nProject Management, Project Planning, Project & Controls, Operations Management, SAP,\nAutoCAD/CAD, HAZOP Studies, P&ID Preparation and Modifications, ECLIPESE, KAPPA PVT Simulation, CMG\nSoftware, SAP & Single View Programming, Six Sigma, KPI, Process Improvement, Production, MATLAB\n\nExperience\n\n•\n \nInmarsat\n \nSt. Johns, NL\n\nBilling Dispute Analyst\n \n09/2021 to Present\n\n◦\n \nBilling Disputes Resolution\n: Investigating and resolving complex billing disputes through thorough research and\nanalysis of customer records.\n\n◦\n \nPost-Resolution Checks\n: Conducting post-resolution checks to ensure accuracy and customer satisfaction.\n\n◦\n \nSAP Utilization\n: UUtilizing SAP to summarize and simplify complex  dataBase for senior management and presenting\neffective solutions.\n\n◦\n \nTrend Analysis\n: Identifying and analyzing recurring billing errors through trend analysis, in order to implement\npreventative measures.\n\n•\n \nBurger King\n \nSt. Johns, NL\n\nAssistant Manager\n \n07/2020 to 08/2021\n\n◦\n \nPlanning Tasks & Scheduling\n: Managed daily operations and ensured smooth functioning of the store by efficiently\nplanning tasks and scheduling employees.\n\n◦\n \nPerformance Reviews\n: Improved employee performance by conducting regular performance evaluations, identifying\nareas of improvement and implementing incentives and promotions.\n\n◦\n \nSafety and Best Food Handling Practices\n: Ensured compliance with government and corporate guidelines for food\nsafety and handling practices to ensure maximum customer satisfaction and a safe work environment.\n\n•\n \nGujarat Fluorochemicals Limited\n \nBharuch, India\n\nProduction Engineer\n \n11/2017 to 05/2018\n\n◦\n \nAnalysis and Prevention\n: Conducted root cause analysis to identify and implement effective and long-term corrective\nactions, and documented faults for future prevention.\n\n◦\n \nPlant Operation and Reporting\n: Troubleshooted and resolved day-to-day operational issues and compiled monthly\nreports for senior management review.\n\n◦\n \nHAZOP Studies and Safe Work Planning\n: Actively participated in regular plant-wide HAZOP studies and\ndeveloped, implemented and distributed safe work procedures for technicians and workers.\n\n◦\n \nCross Discipline Collaboration\n: Collaborated with cross-functional teams to provide input on process improvements\nto increase production while maintaining quality standards.\n\n•\n \nLupin Limited\n \nVadodara, India\n\nProcess Engineer\n \n08/2016 to 11/2017\n\n◦\n \nTechnology Transfer Documentation\n: Led technology transfer documentation efforts, including volume calculations,\nstandard operating procedure (SOP) development, TRT calculation, capacity calculations, utility calculations, feasibility\nanalysis, and PFD creation/modification.\n\n◦\n \nPlant Unit Operation\n: Managed day-to-day operations of various plant units, including distillation, evaporator,\ncentrifuge, and dryer.\n\n◦\n \nInvestment Analysis and Planning\n: Conducted cost-benefit analyses and planned for new equipment and plant\nexpansions.\n\n◦\n \nConstructive Input and Reporting\n: Provided regular, constructive input to plant manager and operations lead on\nareas for improvement, and reported on progress and performance.Certifications\n\n•\n \nEngineer in Training (EIT)\n: PEGNL, Newfoundland, Canada 06/21\n\n•\n \nFirst Aid at Work\n: Green World Group 02/21\n\n•\n \nISO 45001:2018 Internal Auditor Awareness\n: Green World Group 02/21\n\n•\n \nDisaster Management with Advanced Emergency Response Principles\n \n: CPD Standards Office 02/21\n\n•\n \nEssential Fire and Safety Principles\n: Green World Group 02/21\n\n•\n \nGMP-Good Manufacturing Practices\n: Udemy\n\n•\n \nLean Six Sigma\n: Project Management Institute (PIMA) 05/21`;
+// let extractedText = String.raw`Niravbhai Pandya\n \nEmail: niravpandya411@gmail.com\nLocation:Ontario, Canada\n \nMobile:\n \n709-687-4545\nE.I.T. (Engineer In Training)\n \nPEGNL Member\nLinkedIn: linkedin.com/in/nirav-pandya25\n\nEducation\n\n•\n \nMemorial University of Newfoundland\n \nSt. Johns, Canada\n\nMaster of Science - Oil and Gas Engineering\n \n01/2019 to 08/2020\n\nCourses:\n \nProduction, Safety Engineering, Phase Behavior, Reservoir, Drilling, Natural Gas, Reliability Engineering, Engineering\nEconomics\n\n•\n \nGujarat Technological University\n \nGujarat, India\n\nBachelor of Engineering - Process Engineering\n \n07/2012 to 06/2016\n\nCourses:\n \nMass Transfer, Chemical Reaction, Production Planning, Engineering Drawing/Graphics, Thermodynamics, Advance Safety,\nEngineering Planning and Execution\n\nSkills Summary\n\n•\n \nSoft Skill\n:\n \nLeadership, Public Speaking, Problem-Solving, Analytical Thinking, Cross Discipline Contribution and\nTeamwork, Competitive\n\n•\n \nTechnical Skills\n:\n \nProject Management, Project Planning, Project & Controls, Operations Management, SAP,\nAutoCAD/CAD, HAZOP Studies, P&ID Preparation and Modifications, ECLIPESE, KAPPA PVT Simulation, CMG\nSoftware, SAP & Single View Programming, Six Sigma, KPI, Process Improvement, Production, MATLAB\n\nExperience\n\n•\n \nInmarsat\n \nSt. Johns, NL\n\nBilling Dispute Analyst\n \n09/2021 to Present\n\n◦\n \nBilling Disputes Resolution\n: Investigating and resolving complex billing disputes through thorough research and\nanalysis of customer records.\n\n◦\n \nPost-Resolution Checks\n: Conducting post-resolution checks to ensure accuracy and customer satisfaction.\n\n◦\n \nSAP Utilization\n: UUtilizing SAP to summarize and simplify complex  dataBase for senior management and presenting\neffective solutions.\n\n◦\n \nTrend Analysis\n: Identifying and analyzing recurring billing errors through trend analysis, in order to implement\npreventative measures.\n\n•\n \nBurger King\n \nSt. Johns, NL\n\nAssistant Manager\n \n07/2020 to 08/2021\n\n◦\n \nPlanning Tasks & Scheduling\n: Managed daily operations and ensured smooth functioning of the store by efficiently\nplanning tasks and scheduling employees.\n\n◦\n \nPerformance Reviews\n: Improved employee performance by conducting regular performance evaluations, identifying\nareas of improvement and implementing incentives and promotions.\n\n◦\n \nSafety and Best Food Handling Practices\n: Ensured compliance with government and corporate guidelines for food\nsafety and handling practices to ensure maximum customer satisfaction and a safe work environment.\n\n•\n \nGujarat Fluorochemicals Limited\n \nBharuch, India\n\nProduction Engineer\n \n11/2017 to 05/2018\n\n◦\n \nAnalysis and Prevention\n: Conducted root cause analysis to identify and implement effective and long-term corrective\nactions, and documented faults for future prevention.\n\n◦\n \nPlant Operation and Reporting\n: Troubleshooted and resolved day-to-day operational issues and compiled monthly\nreports for senior management review.\n\n◦\n \nHAZOP Studies and Safe Work Planning\n: Actively participated in regular plant-wide HAZOP studies and\ndeveloped, implemented and distributed safe work procedures for technicians and workers.\n\n◦\n \nCross Discipline Collaboration\n: Collaborated with cross-functional teams to provide input on process improvements\nto increase production while maintaining quality standards.\n\n•\n \nLupin Limited\n \nVadodara, India\n\nProcess Engineer\n \n08/2016 to 11/2017\n\n◦\n \nTechnology Transfer Documentation\n: Led technology transfer documentation efforts, including volume calculations,\nstandard operating procedure (SOP) development, TRT calculation, capacity calculations, utility calculations, feasibility\nanalysis, and PFD creation/modification.\n\n◦\n \nPlant Unit Operation\n: Managed day-to-day operations of various plant units, including distillation, evaporator,\ncentrifuge, and dryer.\n\n◦\n \nInvestment Analysis and Planning\n: Conducted cost-benefit analyses and planned for new equipment and plant\nexpansions.\n\n◦\n \nConstructive Input and Reporting\n: Provided regular, constructive input to plant manager and operations lead on\nareas for improvement, and reported on progress and performance.Certifications\n\n•\n \nEngineer in Training (EIT)\n: PEGNL, Newfoundland, Canada 06/21\n\n•\n \nFirst Aid at Work\n: Green World Group 02/21\n\n•\n \nISO 45001:2018 Internal Auditor Awareness\n: Green World Group 02/21\n\n•\n \nDisaster Management with Advanced Emergency Response Principles\n \n: CPD Standards Office 02/21\n\n•\n \nEssential Fire and Safety Principles\n: Green World Group 02/21\n\n•\n \nGMP-Good Manufacturing Practices\n: Udemy\n\n•\n \nLean Six Sigma\n: Project Management Institute (PIMA) 05/21`;
 
-// testingResumeScore = new resumechecker(extractedText)
+// let testingJobDescription = String.raw`Key Responsibilities\n• Execute technical feasibility studies, conceptual design, and process design and studies.\n• Act as Process lead on projects\n• Assist in the development and review of all the standard process engineering deliverables like design basis, process design criteria, HMB, PFDs and P&IDs among various others.\n• Develop/Review process simulations (HYSYS and other process simulators) and heat/material balance.\n• Review of vendor equipment quotes, drawings etc.\n• Collaborate with project team to achieve project objectives. Interface with other departments, project managers, engineers, clients, and vendors during all phases of projects to ensure a good working interface.\n• Participate in studies for various climate change and decarbonization related engagements, to support our clients’ sustainability objectives.\n• Lead and participate in client engagements and projects with a focus on hydrogen and climate change\n• Be a champion of inclusion and diversity\n\nSkills And Experience\n• Professional designation (P.Eng.) or eligible for registration with PEGNL.\n• 15+ years of experience.\n• A keen interest in emission reductions, energy transition and willingness to expand expertise is a must.\n• Any experience in the area of hydrogen design/operations is an asset.\n• Process design experience including standard process deliverables P&IDs, cause and effect diagrams, hazard and operability design reviews and systems support services.\n• Experience with technical studies, FEED and systems design experience including piping and instrument diagrams, cause and effect diagrams, hazard and operability design reviews and systems support services.\n• Working knowledge of detailed design project (EPC and EPCM) execution for oil & gas, chemical and/or power industry clients.\n• Knowledge of federal/provincial safety policies and procedures along with general understanding of International and Canadian codes and standards.\n• Personal Qualities. We are looking for applicants who can demonstrate:\n• Ability to work in a multi-discipline team to develop solutions focused on client objectives,\n• Must be able to prioritize workload and meet deadlines.\n• Excellent interpersonal communication and commercial skills,\n• Enthusiasm for facilities engineering and the desire to develop their abilities in study and project management\n• Proven client relationship management and business development skills.\n• Experience in managing and executing feasibility studies, FEED, and EPCM engagements.`;
+
+// testingResumeScore = new resumechecker(extractedText, testingJobDescription)
 
 // totalScoreReceived = testingResumeScore.getResult()
 
-// console.log(totalScoreReceived.TotalScore)
+// console.log(totalScoreReceived.matchFeedback)
+// console.log(totalScoreReceived.matchScore)
+
+// console.log(totalScoreReceived.Totalscore)
+
+
+// // Constructor takes in the extracted text from the pdf and Job Description compares them and gives the code in JSON Object.
