@@ -370,15 +370,14 @@ module.exports = class resumechecker {
     if (maxFiller == 0 && dataBase.fillerWords.length > 0) {
       fillerfail.push(
         "Filler Words are present here is the list of words you can replace to increase your score: " +
-          fillerWordsUsed
+          fillerWordsUsed.toString().replace(",",", ")
       );
       fillerScore -= 10;
     }
-
-    if (fillerWordsUsed.length == 0) {
-      fillerSuc.push("Filler Words are not present");
+    else
+    {
+        fillerSuc.push("Filler Words are not present");
     }
-
     // now check for overuse of filler words for every 2 filer words over 10,  1 point is deducted
     let fillerLimit = 10;
     if (fillerWordsUsed.length > 10) {
