@@ -5,9 +5,12 @@
 var dataBase = require("./data/parse-data.json");
 
 module.exports = class coverLetterChecker {
+  #extractedText;
+  #feedBack;
+  #totalScore;
   constructor(extractedText) {
-    this.extractedText = extractedText;
-    this.feedBack = {
+    this.#extractedText = extractedText;
+    this.#feedBack = {
       Feedback: {
         Formatting: { success: [], fail: [], score: [] },
         Vocabulary: { success: [], fail: [], score: [] },
@@ -15,38 +18,38 @@ module.exports = class coverLetterChecker {
       },
       Totalscore: 0,
     };
-    this.totalScore = 0;
+    this.#totalScore = 0;
   } // Constructor takes in the extracted text from the pdf
 
-  updateScore(score) {
-    this.totalScore += score;
-    return this.totalScore;
+  #updateScore(score) {
+    this.#totalScore += score;
+    return this.#totalScore;
   }
 
   getResult() {
-    this.getCoverLetterFormatting();
-    this.getCoverLetterVocabulary();
-    this.getCoverLetterBrevity();
-    this.feedBack.Totalscore = this.totalScore;
-    return this.feedBack;
+    this.#getCoverLetterFormatting();
+    this.#getCoverLetterVocabulary();
+    this.#getCoverLetterBrevity();
+    this.#feedBack.Totalscore = this.#totalScore;
+    return this.#feedBack;
   }
 
   // Formatting Check
 
-  getCoverLetterFormatting() {
+  #getCoverLetterFormatting() {
     let formattingScore = 30;
 
     // check for the date
     const dateRegex =
       /\b(?:\d{1,2}\s+)?(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+\d{1,2},?\s*\d{4}?\b/g;
 
-    const date = this.extractedText.match(dateRegex);
+    const date = this.#extractedText.match(dateRegex);
     if (date) {
-      this.feedBack.Feedback.Formatting.success.push(
+      this.#feedBack.Feedback.Formatting.success.push(
         "Date on Cover Letter is " + date[0]
       );
     } else {
-      this.feedBack.Feedback.Formatting.fail.push(
+      this.#feedBack.Feedback.Formatting.fail.push(
         "Date on Cover Letter is missing"
       );
       formattingScore -= 10;
@@ -54,13 +57,13 @@ module.exports = class coverLetterChecker {
 
     // Check for Email address
     const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/;
-    const email = this.extractedText.match(emailRegex);
+    const email = this.#extractedText.match(emailRegex);
     if (email) {
-      this.feedBack.Feedback.Formatting.success.push(
+      this.#feedBack.Feedback.Formatting.success.push(
         "Email on Cover Letter is " + email[0]
       );
     } else {
-      this.feedBack.Feedback.Formatting.fail.push(
+      this.#feedBack.Feedback.Formatting.fail.push(
         "Email on Cover Letter is missing"
       );
       formattingScore -= 10;
@@ -68,38 +71,38 @@ module.exports = class coverLetterChecker {
 
     // Check for Name of the Recipient
     const NAME_REGEX = /Dear\s(?:[a-zA-Z]+\s)+([a-zA-Z]+)/;
-    if (NAME_REGEX.test(this.extractedText)) {
-      const name = this.extractedText.match(NAME_REGEX);
+    if (NAME_REGEX.test(this.#extractedText)) {
+      const name = this.#extractedText.match(NAME_REGEX);
       const firstName = name[0].split(" ")[1];
-      this.feedBack.Feedback.Formatting.success.push(
+      this.#feedBack.Feedback.Formatting.success.push(
         "Cover Letter is addressed to " + firstName + " " + name[1]
       );
     } else {
-      this.feedBack.Feedback.Formatting.fail.push(
+      this.#feedBack.Feedback.Formatting.fail.push(
         "Formatting Error: Dear is not followed by a name"
       );
       formattingScore -= 10;
     }
 
     // Add the running score to total score
-    this.updateScore(formattingScore);
-    this.feedBack.Feedback.Formatting.score.push(formattingScore);
+    this.#updateScore(formattingScore);
+    this.#feedBack.Feedback.Formatting.score.push(formattingScore);
   }
 
   // Vocabulary Check
 
-  getCoverLetterVocabulary() {
+  #getCoverLetterVocabulary() {
     let vocabularyScore = 0;
 
     // Check for action verbs from tge database and for every match add 3 to the score until total for this element of vaoabulary is 25
 
     for (let i = 0; i < dataBase.strongActionWords.length; i++) {
-      if (this.extractedText.match(dataBase.strongActionWords[i])) {
+      if (this.#extractedText.match(dataBase.strongActionWords[i])) {
         vocabularyScore += 3;
-        this.feedBack.Feedback.Vocabulary.success.push(
+        this.#feedBack.Feedback.Vocabulary.success.push(
           "The word " +
-            dataBase.strongActionWords[i] +
-            " is present in the cover letter"
+          dataBase.strongActionWords[i] +
+          " is present in the cover letter"
         );
       }
     }
@@ -107,7 +110,7 @@ module.exports = class coverLetterChecker {
     if (vocabularyScore > 25) {
       vocabularyScore = 25;
     } else {
-      this.feedBack.Feedback.Vocabulary.fail.push(
+      this.#feedBack.Feedback.Vocabulary.fail.push(
         "Please add more action words to the cover letter to increase the score"
       );
     }
@@ -117,14 +120,14 @@ module.exports = class coverLetterChecker {
     // check for buzzword for every buzzword used more than 2 times take 1 point away from the vocabulary score
     for (let i = 0; i < dataBase.buzzWords.length; i++) {
       let count = 0;
-      for (let j = 0; j < this.extractedText.length; j++) {
-        if (this.extractedText[j] === dataBase.buzzWords[i]) {
+      for (let j = 0; j < this.#extractedText.length; j++) {
+        if (this.#extractedText[j] === dataBase.buzzWords[i]) {
           count += 1;
         }
       }
       if (count > 2) {
         vocabularyScore -= 1;
-        this.feedBack.Feedback.Vocabulary.fail.push(
+        this.#feedBack.Feedback.Vocabulary.fail.push(
           "The word " + dataBase.buzzWords[i] + " is used more than twice times"
         );
       }
@@ -132,44 +135,44 @@ module.exports = class coverLetterChecker {
 
     // check for complex buzzword for every buzzword used take 1 point away from the vocabulary score
     for (let i = 0; i < dataBase.complexBuzzwords.length; i++) {
-      if (this.extractedText.match(dataBase.complexBuzzwords[i])) {
+      if (this.#extractedText.match(dataBase.complexBuzzwords[i])) {
         vocabularyScore -= 1;
-        this.feedBack.Feedback.Vocabulary.fail.push(
+        this.#feedBack.Feedback.Vocabulary.fail.push(
           "This complex buzzword " +
-            dataBase.complexBuzzwords[i] +
-            " is used in the cover letter"
+          dataBase.complexBuzzwords[i] +
+          " is used in the cover letter"
         );
       }
     }
 
     // Add the running score to total score
-    this.updateScore(vocabularyScore);
-    this.feedBack.Feedback.Vocabulary.score.push(vocabularyScore);
+    this.#updateScore(vocabularyScore);
+    this.#feedBack.Feedback.Vocabulary.score.push(vocabularyScore);
   }
 
   // Brevity Check
-  getCoverLetterBrevity() {
+  #getCoverLetterBrevity() {
     let brevityScore = 25;
 
     // check for the total number of paragraphs after the dear name and before the salutation
     const paragraphRegex =
       /Dear\s+([a-zA-Z\s]+),?[\r\n\s]+([\s\S]*?)[\r\n\s]*(?:Sincerely|Best regards|Best|Kind regards|Regards|Yours truly|Yours faithfully|Respectfully yours|Cordially|Warm regards|Warmly|Thank you|Thanks)[,.\s]*(?:\r\n|\r|\n)*[\r\n\s]+([a-zA-Z\s]+)/;
-    const paragraph = this.extractedText.match(paragraphRegex);
+    const paragraph = this.#extractedText.match(paragraphRegex);
     let paragraphArray;
     if (paragraph) {
       paragraphArray = paragraph[2].split("\n");
       if (paragraphArray.length > 30) {
-        this.feedBack.Feedback.Brevity.fail.push(
+        this.#feedBack.Feedback.Brevity.fail.push(
           "The cover letter has more than 5 paragraphs"
         );
         brevityScore -= 10;
       } else {
-        this.feedBack.Feedback.Brevity.success.push(
+        this.#feedBack.Feedback.Brevity.success.push(
           "The cover letter has less than or equal to 5 paragraphs"
         );
       }
     } else {
-      this.feedBack.Feedback.Brevity.fail.push(
+      this.#feedBack.Feedback.Brevity.fail.push(
         "The cover letter is not formatted correctly - no paragraphs detected"
       );
       brevityScore -= 10;
@@ -193,14 +196,14 @@ module.exports = class coverLetterChecker {
         if (overLimitPara > 5) {
           overLimitPara = 5;
         }
-        this.feedBack.Feedback.Brevity.fail.push(
+        this.#feedBack.Feedback.Brevity.fail.push(
           "The cover letter has " +
-            overLimitPara +
-            " paragraphs with more than 100 words"
+          overLimitPara +
+          " paragraphs with more than 100 words"
         );
         brevityScore -= overLimitPara * 2;
       } else {
-        this.feedBack.Feedback.Brevity.success.push(
+        this.#feedBack.Feedback.Brevity.success.push(
           "The cover letter has no paragraphs with more than 100 words"
         );
       }
@@ -209,23 +212,23 @@ module.exports = class coverLetterChecker {
     // check for the total number of words in the cover letter
 
     const wordRegexV = /[\w\d\’\'-]+/gi;
-    const word = this.extractedText.match(wordRegexV);
+    const word = this.#extractedText.match(wordRegexV);
     if (word) {
       if (word.length > 400) {
-        this.feedBack.Feedback.Brevity.fail.push(
+        this.#feedBack.Feedback.Brevity.fail.push(
           "The cover letter has more than 400 words"
         );
         brevityScore -= 5;
       } else {
-        this.feedBack.Feedback.Brevity.success.push(
+        this.#feedBack.Feedback.Brevity.success.push(
           "The cover letter has less than or equal to 400 words"
         );
       }
     }
 
     // Add the running score to total score
-    this.updateScore(brevityScore);
-    this.feedBack.Feedback.Brevity.score.push(brevityScore);
+    this.#updateScore(brevityScore);
+    this.#feedBack.Feedback.Brevity.score.push(brevityScore);
   }
 };
 
