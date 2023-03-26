@@ -53,13 +53,22 @@ module.exports = class Matcher {
                 "Match is greater than 50% with the following skills: " +
                 sliceedInResume.toString().replace(",", ", ")
             );
-        } else {
-            matchfail.push(
-                "Match is less than 50%, Add the following skills to increase your match: " +
-                slicedSkills.toString().replace(",", ", ")
-            );
+        } 
+        else if (noMatches / keySkills.length == 0) {
             matchScore -= (noMatches / keySkills.length) * 100;
             matchScore = Math.round(matchScore);
+            matchfail.push(
+                "Match is"+ matchScore +"Add the following skills to increase your match rate: " +
+                slicedSkills.toString().replace(",", ", ")
+            );
+        }
+        else {
+            matchScore -= (noMatches / keySkills.length) * 100;
+            matchScore = Math.round(matchScore);
+            matchSuc.push(
+                "Match is"+ matchScore +"Add the following skills to increase your match rate: " +
+                slicedSkills.toString().replace(",", ", ")
+            );
         }
         let feedbackObject = {};
         feedbackObject.matchFeedback = {};
