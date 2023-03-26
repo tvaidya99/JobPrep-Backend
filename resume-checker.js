@@ -5,10 +5,10 @@
 
 var dataBase = require("./data/parse-data.json");
 
-class resumechecker {
-  constructor(extractedText, jobDiscription) {
+module.exports = class resumeChecker {
+  constructor(extractedText, jobDescription) {
     this.extractedText = extractedText;
-    this.jobDiscription = jobDiscription;
+    this.jobDescription = jobDescription;
     this.feedBack = {
       Feedback: {
         Formatting: { success: [], fail: [], score: 0 },
@@ -72,7 +72,7 @@ class resumechecker {
     this.getVocabScore();
     this.getBrevityScore();
     this.getFillerScore();
-    if (this.jobDiscription) {
+    if (this.jobDescription) {
       this.getMatchScore();
     }
     this.feedBack.Totalscore = this.totalScore;
@@ -408,7 +408,7 @@ class resumechecker {
     // Check for match
     const keySkills = [];
 
-    const words = this.jobDiscription.toLowerCase().split(/[^a-z0-9]/);
+    const words = this.jobDescription.toLowerCase().split(/[^a-z0-9]/);
     for (let i = 0; i < words.length; i++) {
       const word = words[i];
       if (dataBase.stopwords.includes(word) || word.length < 2) {
@@ -456,9 +456,9 @@ class resumechecker {
     }
 
     // add the total to running total and append jason object for feedback with success and fail
-    this.feedBack.matchFeedback.Skills.success = matchSuc;
-    this.feedBack.matchFeedback.Skills.fail = matchfail;
-    this.feedBack.matchScore = matchScore;
+    this.feedBack.matchFeedback.success = matchSuc;
+    this.feedBack.matchFeedback.fail = matchfail;
+    this.feedBack.matchFeedback.score = matchScore;
   }
 };
 
