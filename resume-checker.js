@@ -36,6 +36,8 @@ module.exports = class resumeChecker {
         return this.#totalScore;
     }
 
+    // This can be simplified
+    // Example - this.#feedBack.Feedback[section].success.push(success[i]);
     #updateFeedback(section, success, fail, score) {
         if (section == "Formatting") {
             for (let i = 0; i < success.length; i++) {
@@ -87,6 +89,10 @@ module.exports = class resumeChecker {
         return this.#feedBack;
     }
 
+    /** Need to work on the following:
+     * 
+     * 
+     * */
     #getFormattingScore() {
         let forMatScore = 40; // Total score for formatting
         let forMatSuc = []; // Array of successful formatting
@@ -97,9 +103,11 @@ module.exports = class resumeChecker {
             /(?:[a-z0-9+!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/gi;
         const phoneRegex =
             /(\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4})/gi;
+        const linkedInRegex =
+            /(http(s)?:\/\/)?([\w]+\.)?linkedin\.com\/(pub|in|profile)\/([-a-zA-Z0-9]+)\/*/;
         if (this.#extractedText.match(emailRegex)) {
             forMatSuc.push(
-                "Email Address is: " + this.#extractedText.match(emailRegex)
+                "Email Address is present: " + this.#extractedText.match(emailRegex)
             );
         } else {
             forMatfail.push("Email Address is missing");
@@ -107,14 +115,14 @@ module.exports = class resumeChecker {
         }
         if (this.#extractedText.match(phoneRegex)) {
             forMatSuc.push(
-                "Phone Number is: " + this.#extractedText.match(phoneRegex)
+                "Phone Number is present: " + this.#extractedText.match(phoneRegex)
             );
         } else {
             forMatfail.push("Phone Number is missing");
             forMatScore -= 5; // Added 1 for Date
         }
-        if (this.#extractedText.includes("LinkedIn")) {
-            forMatSuc.push("LinkedIn is present");
+        if (this.#extractedText.match(linkedInRegex)) {
+            forMatSuc.push("LinkedIn is present: " + this.#extractedText.match(linkedInRegex)[0]);
         } else {
             forMatfail.push("LinkedIn is missing");
             forMatScore -= 5; // Added 3 for Date
@@ -122,7 +130,10 @@ module.exports = class resumeChecker {
         // Check for section headings and add to score
         let educPresent = false;
         for (let i = 0; i < dataBase.patternEduc.length; i++) {
-            if (this.#extractedText.includes(dataBase.patternEduc[i])) {
+            let educRegexStr = '([\\\n])+' + dataBase.patternEduc[i] + '([\\\n])+';
+            let educRegex = new RegExp(educRegexStr, "gi");
+            if (this.#extractedText.match(educRegex)) {
+                console.log(this.#extractedText.match(educRegex)[0]);
                 educPresent = true;
                 break;
             }
@@ -136,7 +147,10 @@ module.exports = class resumeChecker {
 
         let expPresent = false;
         for (let i = 0; i < dataBase.patternExp.length; i++) {
-            if (this.#extractedText.includes(dataBase.patternExp[i])) {
+            let expRegexStr = '([\\\n])+' + dataBase.patternExp[i] + '([\\\n])+';
+            let expRegex = new RegExp(expRegexStr, "gi");
+            if (this.#extractedText.match(expRegex)) {
+                console.log(this.#extractedText.match(expRegex)[0]);
                 expPresent = true;
                 break;
             }
@@ -150,7 +164,10 @@ module.exports = class resumeChecker {
 
         let skillsPresent = false;
         for (let i = 0; i < dataBase.patternSkills.length; i++) {
-            if (this.#extractedText.match(dataBase.patternSkills[i])) {
+            let skillsRegexStr = '([\\\n])+' + dataBase.patternSkills[i] + '([\\\n])+';
+            let skillsRegex = new RegExp(skillsRegexStr, "gi");
+            if (this.#extractedText.match(skillsRegex)) {
+                console.log(this.#extractedText.match(skillsRegex)[0]);
                 skillsPresent = true;
                 break;
             }
@@ -163,7 +180,10 @@ module.exports = class resumeChecker {
         }
         let extraActPresent = false;
         for (let i = 0; i < dataBase.patternExtraAct.length; i++) {
-            if (this.#extractedText.includes(dataBase.patternExtraAct[i])) {
+            let extraActRegexStr = '([\\\n])+' + dataBase.patternExtraAct[i] + '([\\\n])+';
+            let extraActRegex = new RegExp(extraActRegexStr, "gi");
+            if (this.#extractedText.match(extraActRegex)) {
+                console.log(this.#extractedText.match(extraActRegex)[0]);
                 extraActPresent = true;
                 break;
             }
@@ -255,11 +275,7 @@ module.exports = class resumeChecker {
 
         // Check for strong action words
         let maxStrong = 0;
-        for (
-            let i = 0;
-            i < dataBase.strongActionWords.length;
-            i++ && maxStrong != 8
-        ) {
+        for (let i = 0; i < dataBase.strongActionWords.length; i++ && maxStrong != 8) {
             if (this.#extractedText.includes(dataBase.strongActionWords[i])) {
                 maxStrong += 1;
             }
@@ -347,7 +363,7 @@ module.exports = class resumeChecker {
             brevitySuc.push("Bullet Points are greater than 16 in total.");
         }
 
-        // paragraph presense check
+        // paragraph presence check
         const paragraphs = this.#extractedText.split(/(\r\n|\n\n|\r|\p)/gm);
         const maxParagraphs = 25; // 15 paragraphs
         let paragraphLen = 0;
@@ -357,10 +373,10 @@ module.exports = class resumeChecker {
             }
         }
         if (paragraphLen > maxParagraphs) {
-            brevityfail.push("Presense of too many paragraphs");
+            brevityfail.push("Presence of too many paragraphs");
             brevityScore -= 7;
         } else {
-            brevitySuc.push("Presense of enough paragraphs");
+            brevitySuc.push("Presence of enough paragraphs");
         }
 
         // add the total to running total and append jason object for feedback with success and fail
