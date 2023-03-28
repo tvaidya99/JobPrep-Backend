@@ -274,20 +274,23 @@ module.exports = class resumeChecker {
         let vocabfail = [];
 
         // Check for strong action words
-        let maxStrong = Math.round((this.#extractedText.match(/[•‣⁃⁌⁍∙○●◘◦☙❥❧⦾⦿][\n]*/g).length) * 0.85);
-        let strongCount = 0;
-        for (let i = 0; i < dataBase.strongActionWords.length; i++) {
-            if (this.#extractedText.includes(dataBase.strongActionWords[i])) {
-                strongCount += 1;
+        if (this.#extractedText.match(/[•‣⁃⁌⁍∙○●◘◦☙❥❧⦾⦿–][\n]*/g)) {
+            let maxStrong = Math.round((this.#extractedText.match().length) * 0.85);
+            let strongCount = 0;
+            for (let i = 0; i < dataBase.strongActionWords.length; i++) {
+                if (this.#extractedText.includes(dataBase.strongActionWords[i])) {
+                    strongCount += 1;
+                }
+                if (strongCount == maxStrong) break;
             }
-            if (strongCount == maxStrong) break;
-        }
-
-        if (strongCount == maxStrong) {
-            vocabSuc.push("Sufficient Strong Action Words are present.");
+            if (strongCount == maxStrong) {
+                vocabSuc.push("Sufficient Strong Action Words are present.");
+            } else {
+                vocabfail.push("Add more Strong Action Words to the bullet points.");
+                vocabScore -= 8;
+            }
         } else {
-            vocabfail.push("Add more Strong Action Words to the bullet points.");
-            vocabScore -= 8;
+            vocabfail.push("Unable to process bullet points.");
         }
 
         // Check for buzzwords
