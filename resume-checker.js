@@ -336,7 +336,7 @@ module.exports = class resumeChecker {
         if (maxComplexBuzz == 0) {
             vocabfail.push("Complex Buzzwords are present");
         } else {
-            vocabSuc.push("Complex Buzzwords are missing");
+            vocabSuc.push("Avoided use of Complex Buzzwords.");
         }
 
         // add the total to running total and append jason object for feedback with success and fail
