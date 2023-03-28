@@ -342,7 +342,7 @@ module.exports = class resumeChecker {
         if (maxComplexBuzz == 0) {
             vocabfail.push("Complex Buzzwords are present");
         } else {
-            vocabSuc.push("Complex Buzzwords are missing");
+            vocabSuc.push("Avoided use of Complex Buzzwords.");
         }
 
         // add the total to running total and append jason object for feedback with success and fail
@@ -355,9 +355,8 @@ module.exports = class resumeChecker {
         let brevitySuc = [];
         let brevityfail = [];
 
-        // Check for word count
+        // Check for word count - 8%
         const words = this.#extractedText.split(" ");
-
         // minimum recommended length = 475 - 600 words
         if (words.length >= 475 && words.length <= 600) {
             brevitySuc.push("Word Count is between 475 - 600 words.");
@@ -366,33 +365,41 @@ module.exports = class resumeChecker {
             brevityScore -= 8;
         }
 
-        // check each bullet point in the extracted text for word count
         let extractedBulletPoints = this.#extractedText.split(/[•‣⁃⁌⁍∙○●◘◦☙❥❧⦾⦿–][\n]*/g);
-        const bulletPoints = extractedBulletPoints.splice(1, extractedBulletPoints.length);
-        const maxLengthBullet = 30;
-        let maxpoint = 5;
-        for (let i = 0; i < bulletPoints.length; i++) {
-            if (bulletPoints[i].split(" ").length > maxLengthBullet) {
-                maxpoint -= 1;
-                if(maxpoint == 0) break;
+        if (extractedBulletPoints.length > 1) {
+            brevitySuc.push("Bullet points are used to convey information.");
+
+            // Check Bullet Points word length - 5%
+            // remove the first entry as bullet points start after the first index
+            const bulletPoints = extractedBulletPoints.splice(1, extractedBulletPoints.length);
+            const maxLengthBullet = 30;
+            let maxpoint = 5;
+            for (let i = 0; i < bulletPoints.length; i++) {
+                if (bulletPoints[i].split(" ").length >= maxLengthBullet) {
+                    maxpoint -= 1;
+                    if (maxpoint == 0) break;
+                }
             }
-        }
+            // allow two lengthy bullet points for error correction in parsing
+            if (maxpoint < 3) {
+                brevityfail.push("Bullet Points must be less than 30 words.");
+                brevityScore -= 5;
+            } else {
+                brevitySuc.push("Bullet Points are less than 30 words.");
+            }
 
-        // allow two lengthy bullet points for error correction in parsing
-        if (maxpoint < 3) {
-            brevityfail.push("Bullet Points must be less than 30 words.");
-            brevityScore -= 2;
+            // Check number of Bullet Points - 5%
+            // 16 bullet points is a fair estimate 
+            // 16 bullets x 15 words = 320 words (~70% of the minimum resume length)
+            if (bulletPoints.length < 16) {
+                brevityfail.push("Bullet Points are less than 16 in total.");
+                brevityScore -= 5;
+            } else {
+                brevitySuc.push("More than 16 bullet points are present.");
+            }
         } else {
-            brevitySuc.push("Bullet Points are less than 30 words.");
-        }
-
-        // 16 bullet points is a fair estimate 
-        // 16 bullets x 15 words = 320 words (~70% of the minimum resume length)
-        if (bulletPoints.length < 16) {
-            brevityfail.push("Bullet Points are less than 16 in total.");
-            brevityScore -= 3;
-        } else {
-            brevitySuc.push("More than 16 bullet points are present.");
+            brevityfail.push("Unable to parse Bullet Points."); // -12%
+            brevityScore -= 12;
         }
 
         // add the total to running total and append jason object for feedback with success and fail
