@@ -272,50 +272,56 @@ module.exports = class resumeChecker {
         let vocabScore = 20;
         let vocabSuc = [];
         let vocabfail = [];
+        let presentdWords = [];
 
-        // Check for strong action words
-        if (this.#extractedText.match(/[•‣⁃⁌⁍∙○●◘◦☙❥❧⦾⦿–][\n]*/g)) {
-            let maxStrong = Math.round((this.#extractedText.match().length) * 0.85);
-            let strongCount = 0;
-            for (let i = 0; i < dataBase.strongActionWords.length; i++) {
-                if (this.#extractedText.includes(dataBase.strongActionWords[i])) {
-                    strongCount += 1;
+        // Check for strong action words check how many times they are present and push to presentdWords accordingly
+
+        for (let i = 0; i < dataBase.strongActionWords.length; i++) {
+            let strongActionRegexStr = dataBase.strongActionWords[i];
+            let strongActionRegex = new RegExp(strongActionRegexStr, "gi"); // g for global and i for case insensitive
+            if (this.#extractedText.match(strongActionRegex)) {
+                let count = this.#extractedText.match(strongActionRegex).length;
+                for (let j = 0; j < count; j++) {
+                    presentdWords.push(dataBase.strongActionWords[i]);
                 }
-                if (strongCount == maxStrong) break;
             }
-            if (strongCount == maxStrong) {
-                vocabSuc.push("Sufficient Strong Action Words are present.");
-            } else {
-                vocabfail.push("Add more Strong Action Words to the bullet points.");
-                vocabScore -= 8;
-            }
-        } else {
-            vocabfail.push("Unable to process bullet points.");
         }
+    
+
+        //  Check how many unique action words are present in presentdWords and if more then 5 unique words are present push success message else push fail message and deduct 8 points from vocabScore
+        let uniqueWords = [...new Set(presentdWords)];
+        if (uniqueWords.length > 5) {
+            vocabSuc.push("Good use of action words");
+        } else {
+            vocabfail.push("Not enough action words");
+            vocabScore -= 8;
+        }
+
 
         // Check for buzzwords
         let maxBuzz = 7;
-        let presentdWords = [];
-        for (let i = 0; i < dataBase.strongActionWords; i++) {
-            if (this.#extractedText.includes(dataBase.strongActionWords[i])) {
-                presentdWords.push(dataBase.strongActionWords[i]);
-            }
-        }
-
+        let repeatedWords = [];
         // Now for each word in Present words check if they are present more than 2 times every time you find one subtract 1 from maxBuzz and remove 1 from vocabScore
-        for (let i = 0; i < presentdWords.length; i++) {
-            if (
-                this.#extractedText.match(
-                    new RegExp(presentdWords[i], "g")
-                ).length > 2
-            ) {
-                maxBuzz -= 1;
+        for (let i = 0; i < presentdWords.length; i++ && maxBuzz > 0) {
+            let count = 0;
+            for (let j = 0; j < presentdWords.length; j++) {
+                if (presentdWords[i] == presentdWords[j]) {
+                    count++;
+                }
+            }
+            if (count > 2) {
+                maxBuzz -= 1;   
                 vocabScore -= 1;
+                repeatedWords.push(presentdWords[i]);
             }
         }
 
-        if (maxBuzz == 0) {
-            vocabfail.push("The following action words are repeated more than twice: " + presentdWords.join(", "));
+        // remove duplicate entries from repeatedWords
+        repeatedWords = [...new Set(repeatedWords)];
+        
+
+        if (presentdWords.length > 0) {
+            vocabfail.push("The following action words are repeated more than twice: " + repeatedWords.join(", "));
         } else {
             vocabSuc.push("Good use of action words");
         }
