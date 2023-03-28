@@ -309,7 +309,7 @@ module.exports = class resumeChecker {
         }
 
         // Check for complex buzzwords
-        const maxComplexBuzz = 5;
+        let maxComplexBuzz = 5;
         for (
             let i = 0;
             i < dataBase.complexBuzzwords.length;
@@ -340,49 +340,41 @@ module.exports = class resumeChecker {
         // Check for word count
         const words = this.#extractedText.split(" ");
 
-        if (words.length > 400) {
-            brevitySuc.push("Word Count is greater than 400");
+        // minimum recommended length = 475 - 600 words
+        if (words.length >= 475 && words.length <= 600) {
+            brevitySuc.push("Word Count is between 475 - 600 words.");
         } else {
-            brevityfail.push("Word Count is less than 400");
+            brevityfail.push("Word Count is: " + words.length + ". Must be between 475 - 600 words.");
             brevityScore -= 8;
         }
 
         // check each bullet point in the extracted text for word count
-        const bulletPoints = this.#extractedText.split(/-|\+|=|•|\*/);
+        let extractedBulletPoints = this.#extractedText.split(/[•‣⁃⁌⁍∙○●◘◦☙❥❧⦾⦿–][\n]*/g);
+        const bulletPoints = extractedBulletPoints.splice(1, extractedBulletPoints.length);
         const maxLengthBullet = 30;
         let maxpoint = 5;
-        for (let i = 0; i < bulletPoints.length; i++ && maxpoint > 0) {
-            if (bulletPoints[i].length > maxLengthBullet) {
+        for (let i = 0; i < bulletPoints.length; i++) {
+            if (bulletPoints[i].split(" ").length > maxLengthBullet) {
                 maxpoint -= 1;
+                if(maxpoint == 0) break;
             }
         }
 
-        if (maxpoint == 0) {
-            brevityfail.push("Bullet Points are too long.");
+        // allow two lengthy bullet points for error correction in parsing
+        if (maxpoint < 3) {
+            brevityfail.push("Bullet Points must be less than 30 words.");
             brevityScore -= 2;
+        } else {
+            brevitySuc.push("Bullet Points are less than 30 words.");
         }
 
+        // 16 bullet points is a fair estimate 
+        // 16 bullets x 15 words = 320 words (~70% of the minimum resume length)
         if (bulletPoints.length < 16) {
             brevityfail.push("Bullet Points are less than 16 in total.");
             brevityScore -= 3;
         } else {
-            brevitySuc.push("Bullet Points are greater than 16 in total.");
-        }
-
-        // paragraph presence check
-        const paragraphs = this.#extractedText.split(/(\r\n|\n\n|\r|\p)/gm);
-        const maxParagraphs = 25; // 15 paragraphs
-        let paragraphLen = 0;
-        for (let i = 0; i < paragraphs.length; i++) {
-            if (paragraphs[i].length > 30) {
-                paragraphLen += 1;
-            }
-        }
-        if (paragraphLen > maxParagraphs) {
-            brevityfail.push("Presence of too many paragraphs");
-            brevityScore -= 7;
-        } else {
-            brevitySuc.push("Presence of enough paragraphs");
+            brevitySuc.push("More than 16 bullet points are present.");
         }
 
         // add the total to running total and append jason object for feedback with success and fail
