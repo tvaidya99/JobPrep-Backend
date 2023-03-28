@@ -301,46 +301,46 @@ module.exports = class resumeChecker {
         // Check for buzzwords
         let maxBuzz = 7;
         let repeatedWords = [];
-        // Now for each word in Present words check if they are present more than 2 times every time you find one subtract 1 from maxBuzz and remove 1 from vocabScore
+        // Now for each word in Present words check if they are present more than 2 times every time you find one subtract 1 from maxBuzz and remove 1 from vocabScore only append to repeatedWords if word is repeated more than twice
         for (let i = 0; i < presentdWords.length; i++ && maxBuzz > 0) {
-            let count = 0;
-            for (let j = 0; j < presentdWords.length; j++) {
-                if (presentdWords[i] == presentdWords[j]) {
-                    count++;
+            let buzzRegexStr = presentdWords[i];
+            let buzzRegex = new RegExp(buzzRegexStr, "gi"); // g for global and i for case insensitive
+            if (this.#extractedText.match(buzzRegex)) {
+                let count = this.#extractedText.match(buzzRegex).length;
+                if (count > 2) {
+                    maxBuzz -= 1;
+                    vocabScore -= 1;
+                    repeatedWords.push(presentdWords[i]);
                 }
             }
-            if (count > 2) {
-                maxBuzz -= 1;   
-                vocabScore -= 1;
-                repeatedWords.push(presentdWords[i]);
-            }
         }
 
-        // remove duplicate entries from repeatedWords
-        repeatedWords = [...new Set(repeatedWords)];
-        
+        // remove duplicates from repeatedWord
 
-        if (presentdWords.length > 0) {
-            vocabfail.push("The following action words are repeated more than twice: " + repeatedWords.join(", "));
+       // push fail message if maxBuzz is less then 7 and push success message if maxBuzz is 7 for fail message add repeatedWords to the message
+        if (maxBuzz < 7) {
+            vocabfail.push("Buzzwords are repeated more than twice: " + repeatedWords.join(", "));
         } else {
-            vocabSuc.push("Good use of action words");
+            vocabSuc.push("Avoided use of repeated action words.");
         }
 
-        // Check for complex buzzwords
+
+        // Check for complex buzzwords use regex to check if any of the complex buzzwords are present in the text and if they are present subtract 1 from vocabScore and maxComplexBuzz
         let maxComplexBuzz = 5;
-        for (
-            let i = 0;
-            i < dataBase.complexBuzzwords.length;
-            i++ && maxComplexBuzz > 0
-        ) {
-            if (this.#extractedText.includes(dataBase.complexBuzzwords[i])) {
+        let complexBuzzwords = [];
+        for (let i = 0; i < dataBase.complexBuzzwords.length; i++ && maxComplexBuzz > 0) {
+            let complexBuzzRegexStr = dataBase.complexBuzzwords[i];
+            let complexBuzzRegex = new RegExp(complexBuzzRegexStr, "gi"); // g for global and i for case insensitive
+            if (this.#extractedText.match(complexBuzzRegex)) {
                 maxComplexBuzz -= 1;
                 vocabScore -= 1;
+                complexBuzzwords.push(dataBase.complexBuzzwords[i]);
             }
         }
 
+
         if (maxComplexBuzz == 0) {
-            vocabfail.push("Complex Buzzwords are present");
+            vocabfail.push("Complex Buzzwords are present in the text: " + complexBuzzwords.join(", "));
         } else {
             vocabSuc.push("Avoided use of Complex Buzzwords.");
         }
@@ -412,15 +412,19 @@ module.exports = class resumeChecker {
         let fillerSuc = [];
         let fillerfail = [];
 
-        // Check for filler words
+        // Check for filler words use regex to check if any of the filler words are present in the text and if they are present subtract 1 from fillerScore and maxFiller
         let fillerWordsUsed = [];
         let maxFiller = 5;
-        for (let i = 0; i < dataBase.fillerWords.length; i++) {
-            if (this.#extractedText.includes(dataBase.fillerWords[i])) {
-                fillerWordsUsed.push(dataBase.fillerWords[i]);
+        for (let i = 0; i < dataBase.fillerWords.length; i++ && maxFiller > 0) {
+            let fillerRegexStr = dataBase.fillerWords[i];
+            let fillerRegex = new RegExp(fillerRegexStr, "gi"); // g for global and i for case insensitive
+            if (this.#extractedText.match(fillerRegex)) {
                 maxFiller -= 1;
+                fillerScore -= 1;
+                fillerWordsUsed.push(dataBase.fillerWords[i]);
             }
         }
+
 
         if (maxFiller == 0 && dataBase.fillerWords.length > 0) {
             fillerfail.push(
@@ -431,6 +435,7 @@ module.exports = class resumeChecker {
         } else {
             fillerSuc.push("Filler Words are not present");
         }
+
         // now check for overuse of filler words for every 2 filer words over 10,  1 point is deducted
         let fillerLimit = 10;
         if (fillerWordsUsed.length > 10) {
