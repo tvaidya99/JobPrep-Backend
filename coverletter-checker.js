@@ -35,7 +35,6 @@ module.exports = class coverLetterChecker {
   }
 
   // Formatting Check
-
   #getCoverLetterFormatting() {
     let formattingScore = 30;
 
@@ -70,12 +69,11 @@ module.exports = class coverLetterChecker {
     }
 
     // Check for Name of the Recipient
-    const NAME_REGEX = /Dear\s(?:[a-zA-Z]+\s)+([a-zA-Z]+)/;
+    const NAME_REGEX = /Dear\s+([A-Za-z./]+(\s+[A-Za-z]+)*)/;
     if (NAME_REGEX.test(this.#extractedText)) {
-      const name = this.#extractedText.match(NAME_REGEX);
-      const firstName = name[0].split(" ")[1];
+      const name = this.#extractedText.match(NAME_REGEX)[0].replace(/Dear\s+/, "");
       this.#feedBack.Feedback.Formatting.success.push(
-        "Cover Letter is addressed to " + firstName + " " + name[1]
+        "Cover Letter is addressed to " + name
       );
     } else {
       this.#feedBack.Feedback.Formatting.fail.push(
@@ -90,50 +88,52 @@ module.exports = class coverLetterChecker {
   }
 
   // Vocabulary Check
-
   #getCoverLetterVocabulary() {
     let vocabularyScore = 0;
-
-    // Check for action verbs from tge database and for every match add 3 to the score until total for this element of vaoabulary is 25
-
+    let strongActionWordsPresent = [];
+    // Check for action verbs from the database and for every match add 3 to the score until total for this element of vocabulary is 25
     for (let i = 0; i < dataBase.strongActionWords.length; i++) {
       if (this.#extractedText.match(dataBase.strongActionWords[i])) {
         vocabularyScore += 3;
-        this.#feedBack.Feedback.Vocabulary.success.push(
-          "The word " +
-          dataBase.strongActionWords[i] +
-          " is present in the cover letter"
-        );
+        strongActionWordsPresent.push(dataBase.strongActionWords[i]);
+        if (vocabularyScore > 25) {
+          vocabularyScore = 25;
+          this.#feedBack.Feedback.Vocabulary.success.push("At least 9 strong action words are present.");
+          break;
+        };
       }
     }
 
-    if (vocabularyScore > 25) {
-      vocabularyScore = 25;
-    } else {
+    if (vocabularyScore < 25) {
+      let actionWordFeedback = "No action words found. ";
+      if(strongActionWordsPresent.length > 0){
+        actionWordFeedback = "Action words found: " + strongActionWordsPresent.toString() + ". ";
+      }
       this.#feedBack.Feedback.Vocabulary.fail.push(
-        "Please add more action words to the cover letter to increase the score"
+        actionWordFeedback +
+        "Please add at least 9 action words to the cover letter to increase the score."
       );
     }
 
-    vocabularyScore += 20; // for the buzzwords and complex buzzwords check
+    vocabularyScore += 20; // for the following criteria
 
-    // check for buzzword for every buzzword used more than 2 times take 1 point away from the vocabulary score
-    for (let i = 0; i < dataBase.buzzWords.length; i++) {
+    // for every strongActionWords used more than 2 times take 1 point away from the vocabulary score
+    for (let i = 0; i < dataBase.strongActionWords.length; i++) {
       let count = 0;
-      for (let j = 0; j < this.#extractedText.length; j++) {
-        if (this.#extractedText[j] === dataBase.buzzWords[i]) {
+      for (let j = 0; j < dataBase.strongActionWords[i]; j++) {
+        if (this.#extractedText[j] === dataBase.strongActionWords[i]) {
           count += 1;
         }
       }
       if (count > 2) {
         vocabularyScore -= 1;
         this.#feedBack.Feedback.Vocabulary.fail.push(
-          "The word " + dataBase.buzzWords[i] + " is used more than twice times"
+          "The word " + dataBase.strongActionWords[i] + " is used more than twice times"
         );
       }
     }
 
-    // check for complex buzzword for every buzzword used take 1 point away from the vocabulary score
+    // check for complex buzzword for every occurence used take 1 point away from the vocabulary score
     for (let i = 0; i < dataBase.complexBuzzwords.length; i++) {
       if (this.#extractedText.match(dataBase.complexBuzzwords[i])) {
         vocabularyScore -= 1;
@@ -156,7 +156,7 @@ module.exports = class coverLetterChecker {
 
     // check for the total number of paragraphs after the dear name and before the salutation
     const paragraphRegex =
-      /Dear\s+([a-zA-Z\s]+),?[\r\n\s]+([\s\S]*?)[\r\n\s]*(?:Sincerely|Best regards|Best|Kind regards|Regards|Yours truly|Yours faithfully|Respectfully yours|Cordially|Warm regards|Warmly|Thank you|Thanks)[,.\s]*(?:\r\n|\r|\n)*[\r\n\s]+([a-zA-Z\s]+)/;
+      /Dear\s+([a-zA-Z./\s]+),?[\r\n\s]+([\s\S]*?)[\r\n\s]*(?:Sincerely|Best regards|Best|Kind regards|Regards|Yours truly|Yours faithfully|Respectfully yours|Cordially|Warm regards|Warmly|Thank you|Thanks)[,.\s]*(?:\r\n|\r|\n)*[\r\n\s]+([a-zA-Z\s]+)/;
     const paragraph = this.#extractedText.match(paragraphRegex);
     let paragraphArray;
     if (paragraph) {
@@ -179,7 +179,6 @@ module.exports = class coverLetterChecker {
     }
 
     // Check for paragraphs with more than 100 words for every paragraph with more than 100 words take 2 points away from the brevity score the limit of scre taken out is 10
-
     if (paragraph) {
       let overLimitPara = 0; // this is to keep track of the number of paragraphs with more than 100 words
       for (let i = 0; i < paragraphArray.length; i++) {
