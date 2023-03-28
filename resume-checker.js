@@ -295,17 +295,29 @@ module.exports = class resumeChecker {
 
         // Check for buzzwords
         let maxBuzz = 7;
-        for (let i = 0; i < dataBase.buzzWords.length; i++ && maxBuzz > 0) {
-            if (this.#extractedText.includes(dataBase.buzzWords[i])) {
+        let presentdWords = [];
+        for (let i = 0; i < dataBase.strongActionWords; i++) {
+            if (this.#extractedText.includes(dataBase.strongActionWords[i])) {
+                presentdWords.push(dataBase.strongActionWords[i]);
+            }
+        }
+
+        // Now for each word in Present words check if they are present more than 2 times every time you find one subtract 1 from maxBuzz and remove 1 from vocabScore
+        for (let i = 0; i < presentdWords.length; i++) {
+            if (
+                this.#extractedText.match(
+                    new RegExp(presentdWords[i], "g")
+                ).length > 2
+            ) {
                 maxBuzz -= 1;
                 vocabScore -= 1;
             }
         }
 
         if (maxBuzz == 0) {
-            vocabfail.push("Buzzwords are present");
+            vocabfail.push("The following action words are repeated more than twice: " + presentdWords.join(", "));
         } else {
-            vocabSuc.push("Buzzwords are missing");
+            vocabSuc.push("Good use of action words");
         }
 
         // Check for complex buzzwords
