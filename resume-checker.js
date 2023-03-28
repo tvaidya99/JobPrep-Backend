@@ -274,19 +274,22 @@ module.exports = class resumeChecker {
         let vocabfail = [];
 
         // Check for strong action words
-        let maxStrong = 0;
-        for (let i = 0; i < dataBase.strongActionWords.length; i++ && maxStrong != 8) {
+        let maxStrong = Math.round((this.#extractedText.match(/[•‣⁃⁌⁍∙○●◘◦☙❥❧⦾⦿][\n]*/g).length) * 0.85);
+        let strongCount = 0;
+        for (let i = 0; i < dataBase.strongActionWords.length; i++) {
             if (this.#extractedText.includes(dataBase.strongActionWords[i])) {
-                maxStrong += 1;
+                strongCount += 1;
             }
+            if (strongCount == maxStrong) break;
         }
 
-        if (maxStrong == 4) {
-            vocabSuc.push("Strong Action Words are present");
+        if (strongCount == maxStrong) {
+            vocabSuc.push("Sufficient Strong Action Words are present.");
         } else {
-            vocabfail.push("Strong Action Words are missing");
+            vocabfail.push("Add more Strong Action Words to the bullet points.");
             vocabScore -= 8;
         }
+
         // Check for buzzwords
         let maxBuzz = 7;
         for (let i = 0; i < dataBase.buzzWords.length; i++ && maxBuzz > 0) {
@@ -341,7 +344,7 @@ module.exports = class resumeChecker {
             brevityScore -= 8;
         }
 
-        // check each bullet point in the extrected text for word count the
+        // check each bullet point in the extracted text for word count
         const bulletPoints = this.#extractedText.split(/-|\+|=|•|\*/);
         const maxLengthBullet = 30;
         let maxpoint = 5;
