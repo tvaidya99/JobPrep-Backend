@@ -104,30 +104,37 @@ module.exports = class coverLetterChecker {
     // remove duplicates from strongActionWordsPresent
     let uniqueWords = [...new Set(strongActionWordsPresent)];
 
-    if (uniqueWords.length > 6) {
+    if (uniqueWords.length >= 6) {
       vocabularyScore += 30;
       this.#feedBack.Feedback.Vocabulary.success.push(
         "Strong Action Words used: " + uniqueWords
       );
-    } else
-      [
-        (vocabularyScore += uniqueWords.length * 5),
-        this.#feedBack.Feedback.Vocabulary.success.push(
-          "Strong Action Words used: " +
-            uniqueWords +
-            " Add more strong action words to your cover letter"
-        ),
-      ];
+    } 
+    else if (uniqueWords.length < 6 && uniqueWords.length >= 0)
+    {
+      vocabularyScore += uniqueWords.length * 5;
+      this.#feedBack.Feedback.Vocabulary.success.push(
+        "Strong Action Words used: " +
+          uniqueWords +
+          " Add more strong action words to your cover letter"
+      )
+    }
+    else
+    {
+      this.#feedBack.Feedback.Vocabulary.fail.push(
+        "No Strong Action Words used in your cover letter"
+      );
+    };
 
-    vocabularyScore += 20; // for the following criteria
-    maxDeduct = 20; // max deduction for the following criteria
+    vocabularyScore += 25; // for the following criteria
+    maxDeduct = 25; // max deduction for the following criteria
 
-    // check strongActionWordPresent for every occurence used more then twice take 4 point away from the vocabulary score until maxDeduct is reached
+    // check strongActionWordPresent for every occurence used more then twice take 5 point away from the vocabulary score until maxDeduct is reached
     for (let i = 0; i < uniqueWords.length; i++) {
       if (this.#extractedText.match(uniqueWords[i]).length > 2) {
         if (maxDeduct > 0) {
-          vocabularyScore -= 4;
-          maxDeduct -= 4;
+          vocabularyScore -= 5;
+          maxDeduct -= 5;
           this.#feedBack.Feedback.Vocabulary.fail.push(
             "This strong action word " +
               uniqueWords[i] +
