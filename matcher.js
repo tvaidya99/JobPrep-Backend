@@ -14,7 +14,6 @@ module.exports = class Matcher {
     let matchScore = 100;
     let matchSuc = [];
     let matchfail = [];
-
     // Check for match
     const keySkills = [];
 
@@ -48,33 +47,38 @@ module.exports = class Matcher {
     let slicedSkills = skillsNotInResume.slice(4, 9);
     let sliceedInResume = skillsInResume.slice(0, 9);
 
-    if (noMatches / keySkills.length > 0.15) {
+    // remove duplicates from skilles in resume and skills not in resume
+    let uniqueSkillsInResume = [...new Set(sliceedInResume)];
+    let uniqueSkillsNotInResume = [...new Set(slicedSkills)];
+
+    // now find the percentage of skills in resume out of not in resume and make that equal to matchscore
+    let percentage = (noMatches / keySkills.length) * 100;
+    matchScore = Math.round(percentage);
+
+    if (matchScore >= 30) {
+      matchScore = 100
       matchSuc.push(
-        "Match is greater than 50% with the following skills: " +
-          sliceedInResume.toString().replace(",", ", ")
+        "You have a good match your skills match is" +
+          matchScore +
+          "% of the job description"
       );
-    } else if (noMatches / keySkills.length == 0) {
-      matchScore -= (noMatches / keySkills.length) * 100;
-      matchScore = Math.round(matchScore);
+
+    } else if (matchScore >= 20) {
+        matchScore = 70
       matchfail.push(
-        "Match is: " +
-          matchScore +
-          "%. Add the following skills to increase your match rate: " +
-          slicedSkills.toString().replace(",", ", ")
-      );
-    } else {
-      matchScore -= (noMatches / keySkills.length) * 100;
-      matchScore = Math.round(matchScore);
-      matchSuc.push(
-        "Match is: " +
-          matchScore +
-          "%. Add the following skills to increase your match rate: " +
-          slicedSkills.toString().replace(",", ", ")
+        "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
+
       );
     }
-    let feedbackObject = {};
-    feedbackObject.matchFeedback = {};
+    else {
+        matchScore = 50
+        matchfail.push(
+            "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
+        );
+    }
+    
 
+    let feedbackObject = { matchFeedback: {success: {}, fail:{}}, matchRate: 0 };
     // add the total to running total and append jason object for feedback with success and fail
     feedbackObject.matchFeedback.success = matchSuc;
     feedbackObject.matchFeedback.fail = matchfail;
