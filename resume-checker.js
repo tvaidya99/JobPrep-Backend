@@ -133,7 +133,6 @@ module.exports = class resumeChecker {
       let educRegexStr = "([\\\n])+" + dataBase.patternEduc[i] + "([\\\n])+";
       let educRegex = new RegExp(educRegexStr, "gi");
       if (this.#extractedText.match(educRegex)) {
-        console.log(this.#extractedText.match(educRegex)[0]);
         educPresent = true;
         break;
       }
@@ -150,7 +149,6 @@ module.exports = class resumeChecker {
       let expRegexStr = "([\\\n])+" + dataBase.patternExp[i] + "([\\\n])+";
       let expRegex = new RegExp(expRegexStr, "gi");
       if (this.#extractedText.match(expRegex)) {
-        console.log(this.#extractedText.match(expRegex)[0]);
         expPresent = true;
         break;
       }
@@ -168,7 +166,6 @@ module.exports = class resumeChecker {
         "([\\\n])+" + dataBase.patternSkills[i] + "([\\\n])+";
       let skillsRegex = new RegExp(skillsRegexStr, "gi");
       if (this.#extractedText.match(skillsRegex)) {
-        console.log(this.#extractedText.match(skillsRegex)[0]);
         skillsPresent = true;
         break;
       }
@@ -185,7 +182,6 @@ module.exports = class resumeChecker {
         "([\\\n])+" + dataBase.patternExtraAct[i] + "([\\\n])+";
       let extraActRegex = new RegExp(extraActRegexStr, "gi");
       if (this.#extractedText.match(extraActRegex)) {
-        console.log(this.#extractedText.match(extraActRegex)[0]);
         extraActPresent = true;
         break;
       }
@@ -254,7 +250,7 @@ module.exports = class resumeChecker {
         "Action words are repeated more than twice: " + repeatedWords.join(", ")
       );
     } else {
-      vocabSuc.push("Avoided use of repeated action words.");
+      vocabSuc.push("Avoided use of repeated action words more than twice.");
     }
 
     // Check for complex buzzwords use regex to check if any of the complex buzzwords are present in the text and if they are present subtract 1 from vocabScore and maxComplexBuzz

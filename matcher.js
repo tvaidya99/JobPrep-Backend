@@ -57,18 +57,18 @@ module.exports = class Matcher {
       matchScore -= (noMatches / keySkills.length) * 100;
       matchScore = Math.round(matchScore);
       matchfail.push(
-        "Match is" +
+        "Match is: " +
           matchScore +
-          "Add the following skills to increase your match rate: " +
+          "%. Add the following skills to increase your match rate: " +
           slicedSkills.toString().replace(",", ", ")
       );
     } else {
       matchScore -= (noMatches / keySkills.length) * 100;
       matchScore = Math.round(matchScore);
       matchSuc.push(
-        "Match is" +
+        "Match is: " +
           matchScore +
-          "Add the following skills to increase your match rate: " +
+          "%. Add the following skills to increase your match rate: " +
           slicedSkills.toString().replace(",", ", ")
       );
     }

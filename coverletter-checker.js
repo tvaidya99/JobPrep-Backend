@@ -3,13 +3,16 @@
 // The class has getResult() function which returns the result of the cover letter check
 
 var dataBase = require("./data/parse-data.json");
+var Matcher = require("./matcher");
 
 module.exports = class coverLetterChecker {
   #extractedText;
+  #jobDescription;
   #feedBack;
   #totalScore;
-  constructor(extractedText) {
+  constructor(extractedText, jobDescription) {
     this.#extractedText = extractedText;
+    this.#jobDescription = jobDescription;
     this.#feedBack = {
       Feedback: {
         Formatting: { success: [], fail: [], score: [] },
@@ -17,6 +20,8 @@ module.exports = class coverLetterChecker {
         Brevity: { success: [], fail: [], score: [] },
       },
       Totalscore: 0,
+      matchFeedback: {},
+      matchRate: 0,
     };
     this.#totalScore = 0;
   } // Constructor takes in the extracted text from the pdf
@@ -30,6 +35,14 @@ module.exports = class coverLetterChecker {
     this.#getCoverLetterFormatting();
     this.#getCoverLetterVocabulary();
     this.#getCoverLetterBrevity();
+    if (this.#jobDescription) {
+      let matchResults = new Matcher(
+        this.#extractedText,
+        this.#jobDescription
+      ).getMatchScore();
+      this.#feedBack.matchFeedback = matchResults.matchFeedback;
+      this.#feedBack.matchRate = matchResults.matchRate;
+    }
     this.#feedBack.Totalscore = this.#totalScore;
     return this.#feedBack;
   }

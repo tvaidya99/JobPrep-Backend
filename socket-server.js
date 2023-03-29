@@ -48,7 +48,8 @@ wss.on("connection", (socket) => {
       // parse cover letter
       if (data.cover_letter) {
         coverLetterScan = new coverLetterChecker(
-          await getExtractedText(data.cover_letter)
+          await getExtractedText(data.cover_letter), 
+          data.job_description
         );
         results.cover_letter = coverLetterScan.getResult();
       }
