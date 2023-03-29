@@ -275,55 +275,49 @@ module.exports = class resumeChecker {
         let presentdWords = [];
 
         // Check for strong action words check how many times they are present and push to presentdWords accordingly
-
         for (let i = 0; i < dataBase.strongActionWords.length; i++) {
             let strongActionRegexStr = dataBase.strongActionWords[i];
             let strongActionRegex = new RegExp(strongActionRegexStr, "gi"); // g for global and i for case insensitive
-            if (this.#extractedText.match(strongActionRegex)) {
-                let count = this.#extractedText.match(strongActionRegex).length;
-                for (let j = 0; j < count; j++) {
-                    presentdWords.push(dataBase.strongActionWords[i]);
+            let strongActionMatch = this.#extractedText.match(strongActionRegex);
+            if (strongActionMatch) {
+                for (let j = 0; j < strongActionMatch.length; j++) {
+                    presentdWords.push(strongActionMatch[j]);
                 }
             }
         }
-    
 
-        //  Check how many unique action words are present in presentdWords and if more then 5 unique words are present push success message else push fail message and deduct 8 points from vocabScore
+        // remove duplicates from presentWords and store in uniqueWords
         let uniqueWords = [...new Set(presentdWords)];
-        if (uniqueWords.length > 5) {
-            vocabSuc.push("Good use of action words");
+
+        if (uniqueWords.length >= 7) {
+            vocabSuc.push("Used sufficient strong action words. Used Strong Action Words: " + uniqueWords.join(", "));
         } else {
-            vocabfail.push("Not enough action words");
-            vocabScore -= 8;
+            vocabfail.push("Used less than 7 strong action words.");
+            vocabScore -= 7;
         }
 
-
-        // Check for buzzwords
-        let maxBuzz = 7;
+        // Check the presentWoes for repeated words and for each word repeated more than twice subtract 1 from vocabScore until maxBuzz is 8
+        let maxBuzz = 8;
         let repeatedWords = [];
-        // Now for each word in Present words check if they are present more than 2 times every time you find one subtract 1 from maxBuzz and remove 1 from vocabScore only append to repeatedWords if word is repeated more than twice
-        for (let i = 0; i < presentdWords.length; i++ && maxBuzz > 0) {
-            let buzzRegexStr = presentdWords[i];
-            let buzzRegex = new RegExp(buzzRegexStr, "gi"); // g for global and i for case insensitive
-            if (this.#extractedText.match(buzzRegex)) {
-                let count = this.#extractedText.match(buzzRegex).length;
-                if (count > 2) {
-                    maxBuzz -= 1;
-                    vocabScore -= 1;
-                    repeatedWords.push(presentdWords[i]);
-                }
-            }
+        for (let i = 0; i < presentdWords.length; i++) {
+            let word = presentdWords[i];
+            let wordRegex = new RegExp(word, "gi");
+            let wordMatch = this.#extractedText.match(wordRegex);
+            if (wordMatch.length > 2) {
+                repeatedWords.push(word);
+                maxBuzz -= 1;
+            }  
         }
 
-        // remove duplicates from repeatedWord
+        // remove repeated words from repeatedWords
+        repeatedWords = [...new Set(repeatedWords)];
 
-       // push fail message if maxBuzz is less then 7 and push success message if maxBuzz is 7 for fail message add repeatedWords to the message
-        if (maxBuzz < 7) {
-            vocabfail.push("Buzzwords are repeated more than twice: " + repeatedWords.join(", "));
+        // message for repeated words
+        if (repeatedWords.length > 0) {
+            vocabfail.push("Action words are repeated more than twice: " + repeatedWords.join(", "));
         } else {
             vocabSuc.push("Avoided use of repeated action words.");
         }
-
 
         // Check for complex buzzwords use regex to check if any of the complex buzzwords are present in the text and if they are present subtract 1 from vocabScore and maxComplexBuzz
         let maxComplexBuzz = 5;
