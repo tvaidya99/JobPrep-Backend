@@ -93,7 +93,7 @@ module.exports = class coverLetterChecker {
   #getCoverLetterVocabulary() {
     let vocabularyScore = 0;
     let strongActionWordsPresent = [];
-    let maxDeduct = 0; 
+    let maxDeduct = 0;
     // Check for action verbs from the database and for every match add 3 to the score until total for this element of vocabulary is 25 use of regex for search
     for (let i = 0; i < dataBase.strongActionWords.length; i++) {
       if (this.#extractedText.match(dataBase.strongActionWords[i])) {
@@ -137,7 +137,7 @@ module.exports = class coverLetterChecker {
       }
     }
 
-   maxDeduct = 10; // max deduction for the following criteria
+    maxDeduct = 10; // max deduction for the following criteria
 
     // check for complex buzzword for every occurence used take 3 point away from the vocabulary score unitl maxDeduct is reached
     for (let i = 0; i < dataBase.complexBuzzwords.length; i++) {
@@ -149,7 +149,7 @@ module.exports = class coverLetterChecker {
             "This complex buzzword " +
               dataBase.complexBuzzwords[i] +
               " is used in the cover letter"
-          );  
+          );
         }
       }
     }

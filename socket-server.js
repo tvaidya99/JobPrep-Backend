@@ -38,7 +38,10 @@ wss.on("connection", (socket) => {
 
       // parse resume
       if (data.resume) {
-        resumeScan = new resumeChecker(await getExtractedText(data.resume), data.job_description);
+        resumeScan = new resumeChecker(
+          await getExtractedText(data.resume),
+          data.job_description
+        );
         results.resume = resumeScan.getResult();
       }
 
