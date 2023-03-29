@@ -45,10 +45,8 @@ module.exports = class Matcher {
         }
 
         let slicedSkills = skillsNotInResume.slice(4, 9);
-        let sliceedInResume = skillsInResume.slice(0, 9);
 
         // remove duplicates from skilles in resume and skills not in resume
-        let uniqueSkillsInResume = [...new Set(sliceedInResume)];
         let uniqueSkillsNotInResume = [...new Set(slicedSkills)];
 
         // now find the percentage of skills in resume out of not in resume and make that equal to matchscore
