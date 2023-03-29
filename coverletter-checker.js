@@ -107,7 +107,8 @@ module.exports = class coverLetterChecker {
     let vocabularyScore = 0;
     let strongActionWordsPresent = [];
     let maxDeduct = 0;
-    // Check for action verbs from the database and for every match add 3 to the score until total for this element of vocabulary is 25 use of regex for search
+    // Check for action verbs from the database and for every match add 3 to the score until total for this element of vocabulary is 25
+    // use of regex for search
     for (let i = 0; i < dataBase.strongActionWords.length; i++) {
       if (this.#extractedText.match(dataBase.strongActionWords[i])) {
         strongActionWordsPresent.push(dataBase.strongActionWords[i]);
@@ -120,58 +121,73 @@ module.exports = class coverLetterChecker {
     if (uniqueWords.length >= 6) {
       vocabularyScore += 30;
       this.#feedBack.Feedback.Vocabulary.success.push(
-        "Strong Action Words used: " + uniqueWords
+        "At least 6 Strong Action Words used: " + uniqueWords
       );
-    } 
-    else if (uniqueWords.length < 6 && uniqueWords.length >= 0)
-    {
+    }
+    else if (uniqueWords.length < 6 && uniqueWords.length > 0) {
       vocabularyScore += uniqueWords.length * 5;
       this.#feedBack.Feedback.Vocabulary.success.push(
         "Strong Action Words used: " +
-          uniqueWords +
-          " Add more strong action words to your cover letter"
+        uniqueWords +
+        " Add more strong action words to your cover letter"
       )
     }
-    else
-    {
+    else {
       this.#feedBack.Feedback.Vocabulary.fail.push(
         "No Strong Action Words used in your cover letter"
       );
     };
 
-    vocabularyScore += 25; // for the following criteria
-    maxDeduct = 25; // max deduction for the following criteria
+    if (uniqueWords.length > 0) {
+      vocabularyScore += 25;
+      maxDeduct = 15; // max deduction for the following criteria
 
-    // check strongActionWordPresent for every occurence used more then twice take 5 point away from the vocabulary score until maxDeduct is reached
-    for (let i = 0; i < uniqueWords.length; i++) {
-      if (this.#extractedText.match(uniqueWords[i]).length > 2) {
-        if (maxDeduct > 0) {
-          vocabularyScore -= 5;
-          maxDeduct -= 5;
-          this.#feedBack.Feedback.Vocabulary.fail.push(
-            "This strong action word " +
-              uniqueWords[i] +
-              " is used more than twice in the cover letter"
-          );
+      let repeatedStrongWords = [];
+      // check strongActionWordPresent for every occurence used more then twice take 5 point away from the vocabulary score until maxDeduct is reached
+      for (let i = 0; i < uniqueWords.length; i++) {
+        if (this.#extractedText.match(uniqueWords[i]).length > 2) {
+          if (maxDeduct > 0) {
+            vocabularyScore -= 5;
+            maxDeduct -= 5;
+            repeatedStrongWords.push(uniqueWords[i]);
+          }
         }
       }
+      if (repeatedStrongWords.length > 0) {
+        this.#feedBack.Feedback.Vocabulary.fail.push(
+          "Strong action words: "
+          + repeatedStrongWords.toString().replace(',', ', ') +
+          " are used more than twice in the cover letter"
+        );
+      } else {
+        this.#feedBack.Feedback.Vocabulary.success.push("Avoided use of repeated action words more than twice.");
+      }
+    } else {
+      vocabularyScore += 10;
     }
 
     maxDeduct = 10; // max deduction for the following criteria
+    let repeatedComplexWords = [];
 
-    // check for complex buzzword for every occurence used take 3 point away from the vocabulary score unitl maxDeduct is reached
+    // check for complex buzzword - for every occurence, take 3 point away from the vocabulary score until maxDeduct is reached
     for (let i = 0; i < dataBase.complexBuzzwords.length; i++) {
       if (this.#extractedText.match(dataBase.complexBuzzwords[i])) {
         if (maxDeduct > 0) {
           vocabularyScore -= 3;
           maxDeduct -= 3;
-          this.#feedBack.Feedback.Vocabulary.fail.push(
-            "This complex buzzword " +
-              dataBase.complexBuzzwords[i] +
-              " is used in the cover letter"
-          );
+          repeatedComplexWords.push(dataBase.complexBuzzwords[i]);
         }
       }
+    }
+
+    if (repeatedComplexWords.length > 0) {
+      this.#feedBack.Feedback.Vocabulary.fail.push(
+        "Complex Buzz words: "
+        + repeatedComplexWords.toString().replace(',', ', ') +
+        " are used in the cover letter."
+      );
+    } else {
+      this.#feedBack.Feedback.Vocabulary.success.push("Avoided use of complex buzz words.");
     }
 
     // Add the running score to total score
