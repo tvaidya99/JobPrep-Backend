@@ -126,15 +126,15 @@ module.exports = class coverLetterChecker {
     }
     else if (uniqueWords.length < 6 && uniqueWords.length > 0) {
       vocabularyScore += uniqueWords.length * 5;
-      this.#feedBack.Feedback.Vocabulary.success.push(
+      this.#feedBack.Feedback.Vocabulary.fail.push(
         "Strong Action Words used: " +
-        uniqueWords +
-        " Add more strong action words to your cover letter"
+        uniqueWords.toString().replaceAll(",", ", ") +
+        ". Add at least 6 strong action words to your cover letter."
       )
     }
     else {
       this.#feedBack.Feedback.Vocabulary.fail.push(
-        "No Strong Action Words used in your cover letter"
+        "No Strong Action Words used in your cover letter."
       );
     };
 
@@ -156,7 +156,7 @@ module.exports = class coverLetterChecker {
       if (repeatedStrongWords.length > 0) {
         this.#feedBack.Feedback.Vocabulary.fail.push(
           "Strong action words: "
-          + repeatedStrongWords.toString().replace(',', ', ') +
+          + repeatedStrongWords.toString().replaceAll(',', ', ') +
           " are used more than twice in the cover letter"
         );
       } else {
@@ -183,7 +183,7 @@ module.exports = class coverLetterChecker {
     if (repeatedComplexWords.length > 0) {
       this.#feedBack.Feedback.Vocabulary.fail.push(
         "Complex Buzz words: "
-        + repeatedComplexWords.toString().replace(',', ', ') +
+        + repeatedComplexWords.toString().replaceAll(',', ', ') +
         " are used in the cover letter."
       );
     } else {

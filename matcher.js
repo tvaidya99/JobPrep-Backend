@@ -26,12 +26,6 @@ module.exports = class Matcher {
             keySkills.push(word);
         }
 
-        for (let i = 0; i < dataBase.stopwords; i++) {
-            if (dataBase.stopwords.includes(keySkills[i])) {
-                keySkills.pop(keySkills[i]);
-            }
-        }
-
         let noMatches = 0;
         let skillsInResume = [];
         let skillsNotInResume = [];
@@ -44,9 +38,12 @@ module.exports = class Matcher {
             }
         }
 
-        let slicedSkills = skillsNotInResume.slice(4, 9);
+        let slicedSkills = skillsNotInResume;
+        if (skillsNotInResume && skillsNotInResume.length > 7) {
+            slicedSkills = skillsNotInResume.slice(0, 7);
+        }
 
-        // remove duplicates from skilles in resume and skills not in resume
+        // remove duplicates from skills in resume and skills not in resume
         let uniqueSkillsNotInResume = [...new Set(slicedSkills)];
 
         // now find the percentage of skills in resume out of not in resume and make that equal to matchscore
@@ -54,21 +51,15 @@ module.exports = class Matcher {
         matchScore = Math.round(percentage);
 
         if (matchScore >= 30) {
-            matchScore = 100
+            matchScore = 100;
             matchSuc.push(
                 "You have a good match! Your skills match rate is: " +
                 matchScore +
                 "% against the job description."
             );
 
-        } else if (matchScore >= 20) {
-            matchScore = 70
-            matchfail.push(
-                "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
-            );
-        }
-        else {
-            matchScore = 50
+        } else {
+            matchScore = Math.round((matchScore / 30) * 100);
             matchfail.push(
                 "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
             );

@@ -369,7 +369,7 @@ module.exports = class resumeChecker {
         if (maxFiller == 0 && dataBase.fillerWords.length > 0) {
             fillerfail.push(
                 "Filler Words are present here is the list of words you can replace to increase your score: " +
-                fillerWordsUsed.toString().replace(",", ", ")
+                fillerWordsUsed.toString().replaceAll(",", ", ")
             );
             fillerScore -= 10;
         } else {
