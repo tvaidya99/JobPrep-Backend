@@ -8,7 +8,9 @@ This repository is the backend of the JobPrep web application. It is based on No
 
 ## Requirements:
 
-1. Install `npm and Node` using `nvm`: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm#using-a-node-version-manager-to-install-nodejs-and-npm
+1. Install `npm` and `Node` using `nvm`: https://docs.npmjs.com/downloading-and-installing-node-js-and-npm#using-a-node-version-manager-to-install-nodejs-and-npm
+   1. Mac/Linux: https://github.com/nvm-sh/nvm
+   2. Windows: https://github.com/coreybutler/nvm-windows
 
 ## How to configure locally
 
