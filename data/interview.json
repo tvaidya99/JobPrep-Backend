@@ -1,0 +1,117 @@
+{
+    "behavior_question": [
+        {
+          "id": 1,
+          "question": "What motivates you to work hard?"
+        },
+        {
+          "id": 2,
+          "question": "How do you handle stress in the workplace?"
+        },
+        {
+          "id": 3,
+          "question": "What are your greatest strengths?"
+        },
+        {
+          "id": 4,
+          "question": "What are your weaknesses and how are you working to improve them?"
+        },
+        {
+          "id": 5,
+          "question": "How do you prioritize tasks and manage your time effectively?"
+        },
+        {
+          "id": 6,
+          "question": "What do you consider to be your greatest accomplishment so far?"
+        },
+        {
+          "id": 7,
+          "question": "How do you handle difficult coworkers or customers?"
+        },
+        {
+          "id": 8,
+          "question": "What is your communication style and how do you adapt it to different situations?"
+        },
+        {
+          "id": 9,
+          "question": "What do you do when you disagree with a coworker or supervisor?"
+        },
+        {
+          "id": 10,
+          "question": "How do you stay organized and manage your workload?"
+        },
+        {
+          "id": 11,
+          "question": "How do you approach problem-solving and decision-making?"
+        },
+        {
+          "id": 12,
+          "question": "What do you do when you encounter a challenge you don't know how to solve?"
+        },
+        {
+          "id": 13,
+          "question": "How do you handle failure or making mistakes on the job?"
+        },
+        {
+          "id": 14,
+          "question": "What do you think is the most important quality for success in your field?"
+        },
+        {
+          "id": 15,
+          "question": "How do you stay up-to-date with industry trends and developments?"
+        },
+        {
+          "id": 16,
+          "question": "How do you handle feedback, both positive and negative?"
+        },
+        {
+          "id": 17,
+          "question": "How do you prioritize work-life balance?"
+        },
+        {
+          "id": 18,
+          "question": "What do you do to stay motivated and engaged in your work?"
+        },
+        {
+          "id": 19,
+          "question": "How do you approach collaboration and teamwork?"
+        },
+        {
+          "id": 20,
+          "question": "What do you do to manage conflicts in a team environment?"
+        },
+        {
+          "id": 21,
+          "question": "What do you think is the most important trait for effective leadership?"
+        },
+        {
+          "id": 22,
+          "question": "How do you lead and motivate a team towards a common goal?"
+        },
+        {
+          "id": 23,
+          "question": "How do you handle tight deadlines and high-pressure situations?"
+        },
+        {
+          "id": 24,
+          "question": "How do you approach continuous learning and professional development?"
+        },
+        {
+          "id": 25,
+          "question": "What do you do to ensure quality and accuracy in your work?"
+        }
+    ], 
+    "technical_resources": 
+    [  
+        {    "name": "Tech Interview Handbook",    "url": "https://github.com/yangshun/tech-interview-handbook"  },  
+        {    "name": "Coding Interview University",    "url": "https://github.com/jwasham/coding-interview-university"  },  
+        {    "name": "LeetCode",    "url": "https://leetcode.com/"  },  
+        {    "name": "HackerRank",    "url": "https://www.hackerrank.com/"  },  
+        {    "name": "Interview Questions",    "url": "https://github.com/MaximAbramchuck/awesome-interview-questions"  },  
+        {    "name": "Algorithms and Data Structures",    "url": "https://github.com/amejiarosario/dsa.js-data-structures-algorithms-javascript"  },  
+        {    "name": "Programming Interview Questions",    "url": "https://github.com/rishabh115/ProgrammingInterviews"  },  
+        {    "name": "Codewars",    "url": "https://www.codewars.com/"  },  
+        {    "name": "AlgoExpert",    "url": "https://www.algoexpert.io/product"  },  
+        {    "name": "Interview Prep Resources",    "url": "https://github.com/lydiahallie/javascript-questions"  }
+    ] 
+}
