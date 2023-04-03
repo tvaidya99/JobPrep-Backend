@@ -41,18 +41,28 @@ app.get("/templates", (req, res) => {
 
 app.get("/behavior_questions", (req, res) => {
   try {
-    // Retrieve 8  random Behvior questions from the json file object behavior_question which has id and question
-    const behaviorQuestions = interview["behavior_questions"].sort(
-      () => 0.5 - Math.random()
-    );
-    const behaviorQuestions8 = behaviorQuestions.slice(0, 8);
-
-    // Return behavior questions as JSON response (take out the id and just return the question)
-    res.json(behaviorQuestions8.map((question) => question.question));
+    // Retrieve all behavior questions from the json file object behavior_questions which has id, question
+    const behaviorQuestions = interview["behavior_questions"];
+    // now check the total no of elements in the behaviorQuestions array and generate 8 random number between 0 and total no of elements put them in the array
+    const randomNumbers = [];
+    while (randomNumbers.length < 8) {
+      const randomNumber = Math.floor(Math.random() * behaviorQuestions.length);
+      if (!randomNumbers.includes(randomNumber)) {
+        randomNumbers.push(randomNumber);
+      }
+    }
+    // now get the 8 questions from matching indexes
+    const randomQuestions = [];
+    for (let i = 0; i < randomNumbers.length; i++) {
+      randomQuestions.push(behaviorQuestions[randomNumbers[i]]);
+    }
+    // Return behavior questions as JSON response
+    res.json(randomQuestions);
   } catch (err) {
     res.status(500);
   }
-})
+});
+
 
 app.get("/technical_resources", (req, res) => {
   try {
