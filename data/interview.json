@@ -80,14 +80,14 @@
     "technical_resources": 
     [  
         {    "name": "Tech Interview Handbook",    "url": "https://github.com/yangshun/tech-interview-handbook"  },  
-        {    "name": "Coding Interview University",    "url": "https://github.com/jwasham/coding-interview-university"  },  
+        {    "name": "Coding Interview University",    "url": "https://8mvx.short.gy/university"  },  
         {    "name": "LeetCode",    "url": "https://leetcode.com/"  },  
         {    "name": "HackerRank",    "url": "https://www.hackerrank.com/"  },  
-        {    "name": "Interview Questions",    "url": "https://github.com/MaximAbramchuck/awesome-interview-questions"  },  
-        {    "name": "Algorithms and Data Structures",    "url": "https://github.com/amejiarosario/dsa.js-data-structures-algorithms-javascript"  },  
-        {    "name": "Programming Interview Questions",    "url": "https://github.com/rishabh115/ProgrammingInterviews"  },  
+        {    "name": "Interview Questions",    "url": "https://8mvx.short.gy/interviews"  },  
+        {    "name": "Algorithms and Data Structures",    "url": "https://8mvx.short.gy/Algorithms"  },  
+        {    "name": "Programming Interview Questions",    "url": "https://8mvx.short.gy/programming"  },  
         {    "name": "Codewars",    "url": "https://www.codewars.com/"  },  
         {    "name": "AlgoExpert",    "url": "https://www.algoexpert.io/product"  },  
-        {    "name": "Interview Prep Resources",    "url": "https://github.com/lydiahallie/javascript-questions"  }
+        {    "name": "JavaScript Prep",    "url": "https://8mvx.short.gy/JavaScript"  }
     ] 
 }
