@@ -62,7 +62,7 @@ module.exports = class coverLetterChecker {
       );
     } else {
       this.#feedBack.Feedback.Formatting.fail.push(
-        "Date on Cover Letter is missing"
+        "Date on Cover Letter is missing: -10 points"
       );
       formattingScore -= 10;
     }
@@ -76,7 +76,7 @@ module.exports = class coverLetterChecker {
       );
     } else {
       this.#feedBack.Feedback.Formatting.fail.push(
-        "Email on Cover Letter is missing"
+        "Email on Cover Letter is missing: -10 points"
       );
       formattingScore -= 10;
     }
@@ -92,14 +92,14 @@ module.exports = class coverLetterChecker {
       );
     } else {
       this.#feedBack.Feedback.Formatting.fail.push(
-        "Formatting Error: Dear is not followed by a name"
+        "Formatting Error: Dear is not followed by a name: -10 points"
       );
       formattingScore -= 10;
     }
 
     // Add the running score to total score
-    this.#updateScore(formattingScore);
-    this.#feedBack.Feedback.Formatting.score.push(formattingScore);
+    this.#updateScore(formattingScore);;
+    this.#feedBack.Feedback.Formatting.score.push(formattingScore.toString() + "/30");
   }
 
   // Vocabulary Check
@@ -134,7 +134,7 @@ module.exports = class coverLetterChecker {
     }
     else {
       this.#feedBack.Feedback.Vocabulary.fail.push(
-        "No Strong Action Words used in your cover letter."
+        "No Strong Action Words used in your cover letter: -30 points"
       );
     };
 
@@ -157,7 +157,7 @@ module.exports = class coverLetterChecker {
         this.#feedBack.Feedback.Vocabulary.fail.push(
           "Strong action words: "
           + repeatedStrongWords.toString().replaceAll(',', ', ') +
-          " are used more than twice in the cover letter"
+          " are used more than twice in the cover letter:" + " -" + maxDeduct + " points"
         );
       } else {
         this.#feedBack.Feedback.Vocabulary.success.push("Avoided use of repeated action words more than twice.");
@@ -192,7 +192,7 @@ module.exports = class coverLetterChecker {
 
     // Add the running score to total score
     this.#updateScore(vocabularyScore);
-    this.#feedBack.Feedback.Vocabulary.score.push(vocabularyScore);
+    this.#feedBack.Feedback.Vocabulary.score.push(vocabularyScore.toString() + "/55");
   }
 
   // Brevity Check
@@ -205,7 +205,7 @@ module.exports = class coverLetterChecker {
     if (word) {
       if (word.length > 400) {
         this.#feedBack.Feedback.Brevity.fail.push(
-          "The cover letter has more than 400 words"
+          "The cover letter has more than 400 words: -15 points"
         );
         brevityScore -= 15;
       } else {
@@ -217,6 +217,6 @@ module.exports = class coverLetterChecker {
 
     // Add the running score to total score
     this.#updateScore(brevityScore);
-    this.#feedBack.Feedback.Brevity.score.push(brevityScore);
+    this.#feedBack.Feedback.Brevity.score.push(brevityScore.toString() + "/15");
   }
 };

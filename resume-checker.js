@@ -116,7 +116,7 @@ module.exports = class resumeChecker {
                 "Phone Number is present: " + this.#extractedText.match(phoneRegex)
             );
         } else {
-            forMatfail.push("Phone Number is missing");
+            forMatfail.push("Phone Number is missing: -5 points");
             forMatScore -= 5; // Added 1 for Date
         }
         if (this.#extractedText.match(linkedInRegex)) {
@@ -124,7 +124,7 @@ module.exports = class resumeChecker {
                 "LinkedIn is present: " + this.#extractedText.match(linkedInRegex)[0]
             );
         } else {
-            forMatfail.push("LinkedIn is missing");
+            forMatfail.push("LinkedIn is missing: -5 points");
             forMatScore -= 5; // Added 3 for Date
         }
         // Check for section headings and add to score
@@ -140,7 +140,7 @@ module.exports = class resumeChecker {
         if (educPresent) {
             forMatSuc.push("Education is present");
         } else {
-            forMatfail.push("Education is missing");
+            forMatfail.push("Education is missing: -8 points");
             forMatScore -= 8;
         }
 
@@ -156,7 +156,7 @@ module.exports = class resumeChecker {
         if (expPresent) {
             forMatSuc.push("Experience is present");
         } else {
-            forMatfail.push("Experience is missing");
+            forMatfail.push("Experience is missing: -8 points");
             forMatScore -= 8;
         }
 
@@ -173,7 +173,7 @@ module.exports = class resumeChecker {
         if (skillsPresent) {
             forMatSuc.push("Skills are present");
         } else {
-            forMatfail.push("Skills are missing");
+            forMatfail.push("Skills are missing: -4 points");
             forMatScore -= 4;
         }
         let extraActPresent = false;
@@ -189,7 +189,7 @@ module.exports = class resumeChecker {
         if (extraActPresent) {
             forMatSuc.push("Extra Activities are present");
         } else {
-            forMatfail.push("Extra Activities are missing");
+            forMatfail.push("Extra Activities are missing: -2 points");
             forMatScore -= 2;
         }
 
@@ -224,7 +224,7 @@ module.exports = class resumeChecker {
                 uniqueWords.join(", ")
             );
         } else {
-            vocabfail.push("Used less than 7 strong action words.");
+            vocabfail.push("Used less than 7 strong action words: -7 points");
             vocabScore -= 7;
         }
 
@@ -247,7 +247,7 @@ module.exports = class resumeChecker {
         // message for repeated words
         if (repeatedWords.length > 0) {
             vocabfail.push(
-                "Action words are repeated more than twice: " + repeatedWords.join(", ")
+                "Action words are repeated more than twice: " + repeatedWords.join(", " + " -1 points per word")
             );
         } else {
             vocabSuc.push("Avoided use of repeated action words more than twice.");
@@ -273,7 +273,7 @@ module.exports = class resumeChecker {
         if (maxComplexBuzz == 0) {
             vocabfail.push(
                 "Complex Buzzwords are present in the text: " +
-                complexBuzzwords.join(", ")
+                complexBuzzwords.join(", ") + " -1 points per word"
             );
         } else {
             vocabSuc.push("Avoided use of Complex Buzzwords.");
@@ -296,7 +296,7 @@ module.exports = class resumeChecker {
             brevitySuc.push("Word Count is between 475 - 600 words.");
         } else {
             brevityfail.push(
-                "Word Count is: " + words.length + ". Must be between 475 - 600 words."
+                "Word Count is: " + words.length + ". Must be between 475 - 600 words: -8 points"
             );
             brevityScore -= 8;
         }
@@ -323,7 +323,7 @@ module.exports = class resumeChecker {
             }
             // allow two lengthy bullet points for error correction in parsing
             if (maxpoint < 3) {
-                brevityfail.push("Bullet Points must be less than 30 words.");
+                brevityfail.push("Bullet Points must be less than 30 words: -5 points");
                 brevityScore -= 5;
             } else {
                 brevitySuc.push("Bullet Points are less than 30 words.");
@@ -333,13 +333,13 @@ module.exports = class resumeChecker {
             // 16 bullet points is a fair estimate
             // 16 bullets x 15 words = 320 words (~70% of the minimum resume length)
             if (bulletPoints.length < 16) {
-                brevityfail.push("Bullet Points are less than 16 in total.");
+                brevityfail.push("Bullet Points are less than 16 in total: -5 points");
                 brevityScore -= 5;
             } else {
                 brevitySuc.push("More than 16 bullet points are present.");
             }
         } else {
-            brevityfail.push("Unable to parse Bullet Points."); // -12%
+            brevityfail.push("Unable to parse Bullet Points: -12 Points"); // -12%
             brevityScore -= 12;
         }
 
@@ -369,7 +369,7 @@ module.exports = class resumeChecker {
         if (maxFiller == 0 && dataBase.fillerWords.length > 0) {
             fillerfail.push(
                 "Filler Words are present here is the list of words you can replace to increase your score: " +
-                fillerWordsUsed.toString().replaceAll(",", ", ")
+                fillerWordsUsed.toString().replaceAll(",", ", ") + " -10 points"
             );
             fillerScore -= 10;
         } else {
@@ -383,7 +383,7 @@ module.exports = class resumeChecker {
                 fillerLimit -= 2;
                 fillerScore -= 1;
             }
-            fillerfail.push("Filler Words are overused");
+            fillerfail.push("Filler Words are overused: -1 point per 2 words");
         }
 
         // add the total to running total and append jason object for feedback with success and fail
