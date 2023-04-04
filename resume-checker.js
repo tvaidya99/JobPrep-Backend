@@ -376,7 +376,7 @@ module.exports = class resumeChecker {
             fillerSuc.push("Filler Words are not present");
         }
 
-        // now check for overuse of filler words for every 2 filer words over 10,  1 point is deducted
+        // now check for overuse of filler words for every 2 filler words over 10,  1 point is deducted
         let fillerLimit = 10;
         if (fillerWordsUsed.length > 10) {
             for (let i = 0; i < fillerLimit.length; i++ && fillerLimit > 0) {

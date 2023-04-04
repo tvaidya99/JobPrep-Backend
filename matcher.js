@@ -1,83 +1,65 @@
-var dataBase = require("./data/parse-data.json");
+const { removeStopwords } = require('stopword');
 
 // Job Matcher class for checking the match rate of the resume with the job description
 module.exports = class Matcher {
-  #extractedText;
-  #jobDescription;
-  #stopwordsSet;
+    #extractedText;
+    #jobDescription;
 
     // Constructor for the Matcher class
-  constructor(extractedText, jobDescription) {
-    this.#extractedText = extractedText;
-    this.#jobDescription = jobDescription;
-    this.#stopwordsSet = new Set(dataBase.stopwords);
-  }
+    constructor(extractedText, jobDescription) {
+        this.#extractedText = extractedText;
+        this.#jobDescription = jobDescription;
+    }
 
+    // Method to get the match rate of the resume with the job description
     getMatchScore() {
-        let matchScore = 100;
-        let matchSuc = [];
-        let matchfail = [];
-        // Check for match
-        const keySkills = [];
-
-        const words = this.#jobDescription.toLowerCase().split(/[^a-z0-9]/);
-        for (let i = 0; i < words.length; i++) {
-            const word = words[i];
-            if (dataBase.stopwords.includes(word) || word.length < 2) {
-                continue;
-            }
-            keySkills.push(word);
-        }
-
-        for (let i = 0; i < dataBase.stopwords; i++) {
-            if (dataBase.stopwords.includes(keySkills[i])) {
-                keySkills.pop(keySkills[i]);
-            }
-        }
-
+        const skills = removeStopwords(this.#jobDescription
+            .toLowerCase()
+            .split(/\W+/))
+            .filter((word) => word.length >= 2);
+        const keySkills = new Set(skills); // remove duplicates
+        const skillsInResume = new Set();
+        const skillsNotInResume = new Set();
         let noMatches = 0;
-        let skillsInResume = [];
-        let skillsNotInResume = [];
-        for (let i = 0; i < keySkills.length; i++) {
-            if (this.#extractedText.includes(keySkills[i])) {
-                noMatches += 1;
-                skillsInResume.push(keySkills[i]);
+
+        for (let skill of keySkills) {
+            if (this.#extractedText.includes(skill)) {
+                noMatches++;
+                skillsInResume.add(skill);
             } else {
-                skillsNotInResume.push(keySkills[i]);
+                skillsNotInResume.add(skill);
             }
         }
 
-        let slicedSkills = skillsNotInResume.slice(4, 9);
+        let uniqueSkillsNotInResume = [...skillsNotInResume].slice(4, 9);
 
-        // remove duplicates from skilles in resume and skills not in resume
-        let uniqueSkillsNotInResume = [...new Set(slicedSkills)];
+        let matchScore = Math.round((noMatches / keySkills.size) * 100);
 
-    // If the match rate is greater than 30% then return a success message
-    // Else return a fail message
+        let feedbackObject = {
+            matchFeedback: { success: [], fail: [] },
+            matchRate: 0,
+        };
 
+        // If the match rate is greater than 30% then return a success message
+        // Else return a fail message
         if (matchScore >= 30) {
-            matchScore = 100
-            matchSuc.push(
+            matchScore = 100;
+            feedbackObject.matchFeedback.success.push(
                 "You have a good match! Your skills match rate is: " +
                 matchScore +
                 "% against the job description."
             );
-
-        } else if (matchScore >= 20) {
-            matchScore = 70
-            matchfail.push(
-                "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
-            );
         }
         else {
-            matchScore = 50
-            matchfail.push(
-                "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
+            matchScore = Math.round((matchScore / 30) * 100);
+            feedbackObject.matchFeedback.fail.push(
+                "Add these skills to increase your Match rate:  " +
+                uniqueSkillsNotInResume.join(", ")
             );
         }
 
-    feedbackObject.matchRate = matchScore;
+        feedbackObject.matchRate = matchScore;
 
-    return feedbackObject;
-  }
+        return feedbackObject;
+    }
 };
