@@ -108,7 +108,7 @@ module.exports = class resumeChecker {
                 "Email Address is present: " + this.#extractedText.match(emailRegex)
             );
         } else {
-            forMatfail.push("Email Address is missing");
+            forMatfail.push("Email Address is missing" + " -5 points");
             forMatScore -= 5; // Added 1 for Date
         }
         if (this.#extractedText.match(phoneRegex)) {
@@ -193,8 +193,9 @@ module.exports = class resumeChecker {
             forMatScore -= 2;
         }
 
+        let stringyScore = forMatScore.toString() + "/40";
         this.#updateScore(forMatScore);
-        this.#updateFeedback("Formatting", forMatSuc, forMatfail, forMatScore);
+        this.#updateFeedback("Formatting", forMatSuc, forMatfail, stringyScore);
     }
 
     #getVocabScore() {
@@ -280,8 +281,9 @@ module.exports = class resumeChecker {
         }
 
         // add the total to running total and append jason object for feedback with success and fail
+        let stringyScore = vocabScore.toString() + "/20";
         this.#updateScore(vocabScore);
-        this.#updateFeedback("Vocabulary", vocabSuc, vocabfail, vocabScore);
+        this.#updateFeedback("Vocabulary", vocabSuc, vocabfail, stringyScore);
     }
 
     #getBrevityScore() {
@@ -344,8 +346,9 @@ module.exports = class resumeChecker {
         }
 
         // add the total to running total and append jason object for feedback with success and fail
+        let stringyScore = brevityScore.toString() + "/20";
         this.#updateScore(brevityScore);
-        this.#updateFeedback("Brevity", brevitySuc, brevityfail, brevityScore);
+        this.#updateFeedback("Brevity", brevitySuc, brevityfail, stringyScore);
     }
 
     #getFillerScore() {
@@ -387,7 +390,8 @@ module.exports = class resumeChecker {
         }
 
         // add the total to running total and append jason object for feedback with success and fail
+        let stringyScore = fillerScore.toString() + "/20";
         this.#updateScore(fillerScore);
-        this.#updateFeedback("FillerWords", fillerSuc, fillerfail, fillerScore);
+        this.#updateFeedback("FillerWords", fillerSuc, fillerfail, stringyScore);
     }
 };

@@ -129,7 +129,7 @@ module.exports = class coverLetterChecker {
       this.#feedBack.Feedback.Vocabulary.fail.push(
         "Strong Action Words used: " +
         uniqueWords.toString().replaceAll(",", ", ") +
-        ". Add at least 6 strong action words to your cover letter."
+        ". Add at least 6 strong action words to your cover letter." + " -" + (30 - vocabularyScore) + " points"
       )
     }
     else {
@@ -139,7 +139,7 @@ module.exports = class coverLetterChecker {
     };
 
     if (uniqueWords.length > 0) {
-      vocabularyScore += 25;
+      vocabularyScore += 15;
       maxDeduct = 15; // max deduction for the following criteria
 
       let repeatedStrongWords = [];
@@ -160,12 +160,14 @@ module.exports = class coverLetterChecker {
           " are used more than twice in the cover letter:" + " -" + maxDeduct + " points"
         );
       } else {
-        this.#feedBack.Feedback.Vocabulary.success.push("Avoided use of repeated action words more than twice.");
+        this.#feedBack.Feedback.Vocabulary.success.push("Avoided use of repeated action words more than twice.")
       }
-    } else {
-      vocabularyScore += 10;
+    }
+    else {
+      vocabularyScore += 15;
     }
 
+    vocabularyScore += 10 // add 10 points for the use of buzzwords
     maxDeduct = 10; // max deduction for the following criteria
     let repeatedComplexWords = [];
 
@@ -184,7 +186,7 @@ module.exports = class coverLetterChecker {
       this.#feedBack.Feedback.Vocabulary.fail.push(
         "Complex Buzz words: "
         + repeatedComplexWords.toString().replaceAll(',', ', ') +
-        " are used in the cover letter."
+        " are used in the cover letter." + " -" + maxDeduct + " points"
       );
     } else {
       this.#feedBack.Feedback.Vocabulary.success.push("Avoided use of complex buzz words.");
