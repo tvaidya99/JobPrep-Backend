@@ -1,14 +1,17 @@
 var dataBase = require("./data/parse-data.json");
 
+// Job Matcher class for checking the match rate of the resume with the job description
 module.exports = class Matcher {
-    #extractedText;
-    #jobDescription;
+  #extractedText;
+  #jobDescription;
+  #stopwordsSet;
 
-    // Constructor takes in the extracted text from the pdf
-    constructor(extractedText, jobDescription) {
-        this.#extractedText = extractedText;
-        this.#jobDescription = jobDescription;
-    }
+    // Constructor for the Matcher class
+  constructor(extractedText, jobDescription) {
+    this.#extractedText = extractedText;
+    this.#jobDescription = jobDescription;
+    this.#stopwordsSet = new Set(dataBase.stopwords);
+  }
 
     getMatchScore() {
         let matchScore = 100;
@@ -26,6 +29,12 @@ module.exports = class Matcher {
             keySkills.push(word);
         }
 
+        for (let i = 0; i < dataBase.stopwords; i++) {
+            if (dataBase.stopwords.includes(keySkills[i])) {
+                keySkills.pop(keySkills[i]);
+            }
+        }
+
         let noMatches = 0;
         let skillsInResume = [];
         let skillsNotInResume = [];
@@ -38,39 +47,37 @@ module.exports = class Matcher {
             }
         }
 
-        let slicedSkills = skillsNotInResume;
-        if (skillsNotInResume && skillsNotInResume.length > 7) {
-            slicedSkills = skillsNotInResume.slice(0, 7);
-        }
+        let slicedSkills = skillsNotInResume.slice(4, 9);
 
-        // remove duplicates from skills in resume and skills not in resume
+        // remove duplicates from skilles in resume and skills not in resume
         let uniqueSkillsNotInResume = [...new Set(slicedSkills)];
 
-        // now find the percentage of skills in resume out of not in resume and make that equal to matchscore
-        let percentage = (noMatches / keySkills.length) * 100;
-        matchScore = Math.round(percentage);
+    // If the match rate is greater than 30% then return a success message
+    // Else return a fail message
 
         if (matchScore >= 30) {
-            matchScore = 100;
+            matchScore = 100
             matchSuc.push(
                 "You have a good match! Your skills match rate is: " +
                 matchScore +
                 "% against the job description."
             );
 
-        } else {
-            matchScore = Math.round((matchScore / 30) * 100);
+        } else if (matchScore >= 20) {
+            matchScore = 70
+            matchfail.push(
+                "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
+            );
+        }
+        else {
+            matchScore = 50
             matchfail.push(
                 "Add these skills to increase your Match rate:  " + uniqueSkillsNotInResume.join(", ")
             );
         }
 
+    feedbackObject.matchRate = matchScore;
 
-        let feedbackObject = { matchFeedback: { success: {}, fail: {} }, matchRate: 0 };
-        // add the total to running total and append jason object for feedback with success and fail
-        feedbackObject.matchFeedback.success = matchSuc;
-        feedbackObject.matchFeedback.fail = matchfail;
-        feedbackObject.matchRate = matchScore;
-        return feedbackObject;
-    }
+    return feedbackObject;
+  }
 };

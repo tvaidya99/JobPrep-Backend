@@ -1,0 +1,93 @@
+{
+    "behavior_questions": [
+        {
+          "question": "What motivates you to work hard?"
+        },
+        {
+          "question": "How do you handle stress in the workplace?"
+        },
+        {
+          "question": "What are your greatest strengths?"
+        },
+        {
+          "question": "What are your weaknesses and how are you working to improve them?"
+        },
+        {
+          "question": "How do you prioritize tasks and manage your time effectively?"
+        },
+        {
+          "question": "What do you consider to be your greatest accomplishment so far?"
+        },
+        {
+          "question": "How do you handle difficult coworkers or customers?"
+        },
+        {
+          "question": "What is your communication style and how do you adapt it to different situations?"
+        },
+        {
+          "question": "What do you do when you disagree with a coworker or supervisor?"
+        },
+        {
+          "question": "How do you stay organized and manage your workload?"
+        },
+        {
+          "question": "How do you approach problem-solving and decision-making?"
+        },
+        {
+          "question": "What do you do when you encounter a challenge you don't know how to solve?"
+        },
+        {
+          "question": "How do you handle failure or making mistakes on the job?"
+        },
+        {
+          "question": "What do you think is the most important quality for success in your field?"
+        },
+        {
+          "question": "How do you stay up-to-date with industry trends and developments?"
+        },
+        {
+          "question": "How do you handle feedback, both positive and negative?"
+        },
+        {
+          "question": "How do you prioritize work-life balance?"
+        },
+        {
+          "question": "What do you do to stay motivated and engaged in your work?"
+        },
+        {
+          "question": "How do you approach collaboration and teamwork?"
+        },
+        {
+          "question": "What do you do to manage conflicts in a team environment?"
+        },
+        {
+          "question": "What do you think is the most important trait for effective leadership?"
+        },
+        {
+          "question": "How do you lead and motivate a team towards a common goal?"
+        },
+        {
+          "question": "How do you handle tight deadlines and high-pressure situations?"
+        },
+        {
+
+          "question": "How do you approach continuous learning and professional development?"
+        },
+        {
+          "question": "What do you do to ensure quality and accuracy in your work?"
+        }
+    ], 
+    "technical_resources": 
+    [  
+        {    "name": "Tech Interview Handbook",    "url": "https://github.com/yangshun/tech-interview-handbook"  },  
+        {    "name": "Coding Interview University",    "url": "https://8mvx.short.gy/university"  },  
+        {    "name": "LeetCode",    "url": "https://leetcode.com/"  },  
+        {    "name": "HackerRank",    "url": "https://www.hackerrank.com/"  },  
+        {    "name": "Interview Questions",    "url": "https://8mvx.short.gy/interviews"  },  
+        {    "name": "Algorithms and Data Structures",    "url": "https://8mvx.short.gy/Algorithms"  },  
+        {    "name": "Programming Interview Questions",    "url": "https://8mvx.short.gy/programming"  },  
+        {    "name": "Codewars",    "url": "https://www.codewars.com/"  },  
+        {    "name": "AlgoExpert",    "url": "https://www.algoexpert.io/product"  },  
+        {    "name": "JavaScript Prep",    "url": "https://8mvx.short.gy/JavaScript"  }
+    ] 
+}
