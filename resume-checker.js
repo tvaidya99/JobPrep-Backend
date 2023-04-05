@@ -358,35 +358,42 @@ module.exports = class resumeChecker {
 
         // Check for filler words use regex to check if any of the filler words are present in the text and if they are present subtract 1 from fillerScore and maxFiller
         let fillerWordsUsed = [];
-        let maxFiller = 5;
+        let maxFiller = 10;
         for (let i = 0; i < dataBase.fillerWords.length; i++ && maxFiller > 0) {
             let fillerRegexStr = dataBase.fillerWords[i];
             let fillerRegex = new RegExp(fillerRegexStr, "gi"); // g for global and i for case insensitive
             if (this.#extractedText.match(fillerRegex)) {
                 maxFiller -= 1;
-                fillerScore -= 1;
                 fillerWordsUsed.push(dataBase.fillerWords[i]);
             }
         }
 
-        if (maxFiller == 0 && dataBase.fillerWords.length > 0) {
-            fillerfail.push(
-                "Filler Words are present here is the list of words you can replace to increase your score: " +
-                fillerWordsUsed.toString().replaceAll(",", ", ") + " -10 points"
-            );
-            fillerScore -= 10;
-        } else {
+        if (maxFiller == 10) {
             fillerSuc.push("Filler Words are not present");
+        } else {
+            fillerfail.push(
+                "Filler Words are present! Here is the list of words you can replace to increase your score: " +
+                fillerWordsUsed.toString().replaceAll(",", ", ") + ". -" + (10 - maxFiller) + " points"
+            );
+            fillerScore -= (10 - maxFiller);
         }
 
-        // now check for overuse of filler words for every 2 filler words over 10,  1 point is deducted
-        let fillerLimit = 10;
+        let fillerOveruseLimit = 10;
+        // now check for overuse of filler words
         if (fillerWordsUsed.length > 10) {
-            for (let i = 0; i < fillerLimit.length; i++ && fillerLimit > 0) {
-                fillerLimit -= 2;
-                fillerScore -= 1;
+            let numberOfFillersUsedAbove10 = (fillerWordsUsed.length - 10);
+
+            // for every 1 filler words used over 10, 2 points are deducted
+            if (numberOfFillersUsedAbove10 >= 5) {
+                fillerOveruseLimit -= 10;
+                fillerScore -= 10;
+            } else {
+                fillerOveruseLimit -= numberOfFillersUsedAbove10 * 2;
+                fillerScore -= numberOfFillersUsedAbove10 * 2;
             }
-            fillerfail.push("Filler Words are overused: -1 point per 2 words");
+            fillerfail.push("Filler Words are overused. -2 points per 1 words: -" + (10-fillerOveruseLimit) + " points");
+        } else {
+            fillerSuc.push("Filler Words are not overused.");
         }
 
         // add the total to running total and append jason object for feedback with success and fail
