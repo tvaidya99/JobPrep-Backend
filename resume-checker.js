@@ -391,7 +391,7 @@ module.exports = class resumeChecker {
                 fillerOveruseLimit -= numberOfFillersUsedAbove10 * 2;
                 fillerScore -= numberOfFillersUsedAbove10 * 2;
             }
-            fillerfail.push("Filler Words are overused. -2 points per 1 words: -" + (10-fillerOveruseLimit) + " points");
+            fillerfail.push("Filler Words are overused. -2 points per 1 word: -" + (10-fillerOveruseLimit) + " points");
         } else {
             fillerSuc.push("Filler Words are not overused.");
         }
